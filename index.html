@@ -1,0 +1,3106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Your Finance Journey · Fund One</title>
+<meta name="theme-color" id="themeColor" content="#4d96c8" />
+<meta property="og:title" content="Your Finance Journey · Fund One" />
+<meta property="og:description" content="Track your car finance live, from application to keys in hand." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --snow: #ffffff;
+    --rock-1: #2a3a52;
+    --rock-2: #4a6080;
+    --gold: #f6b932;
+    --gold-soft: #ffd66b;
+    --gold-glow: rgba(246, 185, 50, 0.55);
+    --warm: #d97a4a;
+    --text: #1a2333;
+    --muted: #5c7392;
+    --frost: rgba(255, 255, 255, 0.68);
+    --frost-strong: rgba(255, 255, 255, 0.85);
+    --line: rgba(20, 35, 60, 0.1);
+    --line-2: rgba(20, 35, 60, 0.18);
+  }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: #4d96c8;
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  body { position: relative; }
+
+  /* World wrapper lets us do the cinematic settle without breaking dot alignment */
+  #world {
+    position: fixed; inset: 0;
+    transform-origin: 50% 62%;
+    transition: transform 3s cubic-bezier(.22,1,.36,1);
+  }
+  #world.intro-zoom { transform: scale(1.07); transition: none; }
+
+  .scene { position: absolute; inset: 0; overflow: hidden; }
+  .scene svg.sky-svg, .scene canvas.snow {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+  }
+  canvas.snow { pointer-events: none; z-index: 4; }
+  svg.sky-svg { z-index: 1; display: block; }
+
+  .stage-layer { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+
+  /* ===== Cinematic intro overlay ===== */
+  .intro {
+    position: fixed; inset: 0;
+    z-index: 50;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 14px;
+    pointer-events: none;
+    opacity: 0;
+    animation: introIn .9s ease .15s forwards;
+    text-align: center;
+    padding: 0 20px;
+  }
+  @keyframes introIn { to { opacity: 1; } }
+  .intro.hide { animation: none; opacity: 0; transition: opacity .9s ease; }
+  .intro-eyebrow {
+    font-size: clamp(9px, 1.4vw, 11px);
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.92);
+    font-weight: 700;
+    text-shadow: 0 2px 14px rgba(10,20,40,0.55);
+  }
+  .intro-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: clamp(34px, 7vw, 64px);
+    color: #fff;
+    line-height: 1.05;
+    text-shadow: 0 4px 28px rgba(10,20,40,0.55);
+  }
+  .intro-rule {
+    width: 56px; height: 2px;
+    background: var(--gold);
+    box-shadow: 0 0 14px var(--gold-glow);
+  }
+  .intro-sub {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: clamp(13px, 2.2vw, 17px);
+    color: rgba(255,255,255,0.88);
+    text-shadow: 0 2px 14px rgba(10,20,40,0.5);
+  }
+
+  /* ===== Celebrate toast ===== */
+  .toast {
+    position: fixed;
+    top: 86px; left: 50%;
+    transform: translateX(-50%) translateY(-14px);
+    z-index: 60;
+    display: flex; align-items: center; gap: 10px;
+    background: var(--frost-strong);
+    border: 1px solid rgba(246,185,50,0.6);
+    border-left: 3px solid var(--gold);
+    border-radius: 14px;
+    padding: 12px 18px;
+    box-shadow: 0 14px 36px rgba(20,30,50,0.22), 0 0 24px rgba(246,185,50,0.25);
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    font-size: 13px; font-weight: 600; color: var(--text);
+    opacity: 0; pointer-events: none;
+    transition: opacity .6s ease, transform .6s cubic-bezier(.22,1,.36,1);
+    max-width: min(420px, calc(100vw - 32px));
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast .spark { font-size: 16px; }
+
+  /* ===== Live working strip ===== */
+  .live-strip {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    background: var(--frost-strong);
+    border: 1px solid rgba(74,206,126,0.55);
+    border-left: 3px solid #4ace7e;
+    border-radius: 14px;
+    padding: 9px 14px;
+    margin-bottom: 8px;
+    box-shadow: 0 10px 28px rgba(20,30,50,0.18);
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+  }
+  .live-strip.on { display: flex; }
+  .live-dot { width: 9px; height: 9px; border-radius: 50%; background: #4ace7e; position: relative; flex: 0 0 9px; }
+  .live-dot::after {
+    content: ""; position: absolute; inset: -4px; border-radius: 50%;
+    border: 2px solid rgba(74,206,126,0.5);
+    animation: livePing 1.8s ease-out infinite;
+  }
+  @keyframes livePing { 0% { transform: scale(.6); opacity: 1; } 100% { transform: scale(1.7); opacity: 0; } }
+  .live-text { min-width: 0; }
+  .live-eyebrow { font-size: 8.5px; letter-spacing: .24em; text-transform: uppercase; color: #2d7a4e; font-weight: 800; }
+  .live-line { font-size: 12.5px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .live-caret { display: inline-block; width: 7px; margin-left: 1px; color: #2d7a4e; animation: caretBlink 1s steps(1) infinite; }
+  @keyframes caretBlink { 50% { opacity: 0; } }
+  .live-on .mobile-fabs { bottom: calc(64px + 12px + 10px + 44px); }
+
+  /* ===== Thinking bubble over the current position ===== */
+  .work-bubble {
+    position: absolute;
+    top: -44px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255,255,255,0.95);
+    border: 1px solid var(--line-2);
+    border-radius: 12px;
+    padding: 6px 9px;
+    display: none;
+    gap: 4px;
+    box-shadow: 0 6px 16px rgba(20,30,50,0.25);
+  }
+  .work-bubble.on { display: flex; }
+  .work-bubble::after {
+    content: ""; position: absolute; bottom: -5px; left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 9px; height: 9px;
+    background: #fff;
+    border-right: 1px solid var(--line-2);
+    border-bottom: 1px solid var(--line-2);
+  }
+  .wb-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--rock-2); animation: wbBounce 1.2s ease-in-out infinite; }
+  .wb-dot:nth-child(2) { animation-delay: .15s; }
+  .wb-dot:nth-child(3) { animation-delay: .3s; }
+  @keyframes wbBounce { 0%,100% { transform: translateY(0); opacity: .5; } 40% { transform: translateY(-4px); opacity: 1; } }
+
+  /* Radar ping on the current stage dot while work is happening */
+  .stage.current.working .stage-dot::after {
+    content: ""; position: absolute; inset: -7px; border-radius: 50%;
+    border: 2px solid rgba(246,185,50,0.55);
+    animation: dotPing 2s ease-out infinite;
+  }
+  @keyframes dotPing { 0% { transform: scale(.5); opacity: 1; } 100% { transform: scale(1.8); opacity: 0; } }
+
+  /* ===== Stage dots ===== */
+  .stage {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    pointer-events: auto;
+    cursor: pointer;
+    opacity: 0;
+    animation: dotIn .55s cubic-bezier(.22,1,.36,1) forwards;
+  }
+  .stage::after { content: ""; position: absolute; left: 50%; top: 50%; width: 42px; height: 42px; transform: translate(-50%, -50%); border-radius: 50%; }
+  @keyframes dotIn {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+    to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  }
+  .stage-dot {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--snow);
+    border: 2.5px solid var(--rock-1);
+    box-shadow: 0 0 0 4px rgba(255,255,255,0.45), 0 4px 12px rgba(20,30,50,0.4);
+    transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .3s;
+    position: relative;
+  }
+  .stage:hover .stage-dot, .stage.selected .stage-dot { transform: scale(1.35); }
+  .stage.done .stage-dot {
+    background: var(--gold);
+    border-color: #8a6510;
+    box-shadow: 0 0 0 4px rgba(255,255,255,0.35), 0 0 14px 3px rgba(246,185,50,0.5), 0 4px 12px rgba(20,30,50,0.4);
+  }
+  .stage.done .stage-dot::after {
+    content: "✓"; position: absolute; inset: 0;
+    display: grid; place-items: center;
+    font-size: 9px; color: #4a3508; font-weight: 800;
+  }
+  .stage.future .stage-dot {
+    width: 15px; height: 15px;
+    background: rgba(255,255,255,0.6);
+    border: 2px dashed #4a5e7a;
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.25), 0 3px 10px rgba(20,30,50,0.3);
+    opacity: 1;
+  }
+  .stage.future:hover .stage-dot { background: #ffffff; border-style: solid; }
+  .stage.done .num { color: #2d6a28; font-weight: 800; }
+  .stage.current .stage-dot {
+    background: var(--gold);
+    border-color: #6b4f10;
+    box-shadow: 0 0 0 6px rgba(246,185,50,0.22), 0 0 28px 6px var(--gold-glow), 0 4px 14px rgba(20,30,50,0.4);
+    animation: pulse 2.4s ease-in-out infinite;
+    width: 18px; height: 18px;
+  }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 6px rgba(246,185,50,0.22), 0 0 22px 4px var(--gold-glow), 0 4px 14px rgba(20,30,50,0.4); }
+    50%     { box-shadow: 0 0 0 14px rgba(246,185,50,0.06), 0 0 44px 14px var(--gold-glow), 0 4px 14px rgba(20,30,50,0.4); }
+  }
+  .stage-label {
+    position: absolute;
+    bottom: 24px; left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 7.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text);
+    padding: 2px 7px;
+    border-radius: 100px;
+    background: rgba(255,255,255,0.92);
+    border: 1px solid var(--line-2);
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(20,30,50,0.18);
+    opacity: 0.85;
+    transition: opacity .2s ease;
+    pointer-events: none;
+  }
+  .stage[data-tier="1"] .stage-label { bottom: 42px; }
+  .stage:hover { z-index: 60; }
+  .stage:hover .stage-label, .stage.selected .stage-label { opacity: 1; }
+  .stage.current { z-index: 50; }
+  .stage.current .stage-label {
+    background: var(--gold);
+    border-color: #b8870e;
+    color: var(--text);
+    opacity: 1;
+    font-size: 8.5px;
+    padding: 3px 9px;
+    bottom: 26px;
+    box-shadow: 0 4px 12px rgba(140,95,10,0.35);
+  }
+  .stage.future .stage-label { opacity: 0.6; }
+  .stage.future:hover .stage-label { opacity: 1; }
+  .stage[data-edge="start"] .stage-label { left: -6px; transform: none; }
+  .stage[data-edge="end"] .stage-label { left: auto; right: -6px; transform: none; }
+  .stage .num { color: var(--muted); margin-right: 5px; }
+  .stage.current .num { color: rgba(0,0,0,0.45); }
+
+  /* ===== Characters ===== */
+  .trekker {
+    position: absolute;
+    transform: translate(-50%, -110%);
+    z-index: 6;
+    pointer-events: none;
+    animation: trekkerBob 1.4s ease-in-out infinite;
+  }
+  @keyframes trekkerBob {
+    0%,100% { transform: translate(-50%, -110%) translateY(0); }
+    50%     { transform: translate(-50%, -110%) translateY(-2px); }
+  }
+  .trekker-svg { width: 32px; height: 38px; filter: drop-shadow(0 3px 4px rgba(20,30,50,0.4)); }
+  .trekker-tag {
+    position: absolute; top: -16px; left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Fraunces', serif;
+    font-style: italic; font-size: 11px; font-weight: 500;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    text-shadow: 0 1px 4px rgba(255,255,255,0.9), 0 1px 8px rgba(10,20,40,0.5);
+  }
+
+  .cheer-broker {
+    z-index: -1;
+    position: absolute;
+    transform: translate(-50%, -100%);
+    z-index: 6;
+    pointer-events: none;
+    animation: cheerBounce 1.1s cubic-bezier(.5,0,.5,1) infinite;
+  }
+  @keyframes cheerBounce {
+    0%,100% { transform: translate(-50%, -100%) translateY(0); }
+    50%     { transform: translate(-50%, -100%) translateY(-5px); }
+  }
+  .cheer-broker-svg { width: 44px; height: 56px; filter: drop-shadow(0 4px 5px rgba(20,30,50,0.5)); }
+  .cheer-broker-svg .flag { transform-box: fill-box; transform-origin: 0% 50%; animation: flagWave 1.4s ease-in-out infinite; }
+  @keyframes flagWave { 0%,100% { transform: skewY(0deg) scaleX(1); } 50% { transform: skewY(-5deg) scaleX(0.96); } }
+  .cheer-broker-svg .arm-right { transform-box: fill-box; transform-origin: 0% 100%; animation: armWave 1.4s ease-in-out infinite; }
+  @keyframes armWave { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(-8deg); } }
+  .cheer-broker-tag {
+    position: absolute; top: -16px; left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Fraunces', serif;
+    font-style: italic; font-size: 11px; font-weight: 500;
+    color: #ff8a66;
+    letter-spacing: 0.15em;
+    white-space: nowrap;
+    text-shadow: 0 1px 4px rgba(255,255,255,0.85), 0 1px 8px rgba(10,20,40,0.5);
+  }
+
+  .confetti-burst {
+    position: absolute;
+    transform: translate(-50%, -100%);
+    z-index: 5;
+    pointer-events: none;
+    width: 80px; height: 80px;
+  }
+  .confetti {
+    position: absolute;
+    width: 6px; height: 8px;
+    border-radius: 1px;
+    opacity: 0;
+    animation: confettiFall 2.8s linear infinite;
+  }
+  @keyframes confettiFall {
+    0%   { transform: translate(0, -10px) rotate(0deg) scale(0.6); opacity: 0; }
+    15%  { opacity: 1; }
+    100% { transform: translate(var(--cx, 20px), 60px) rotate(720deg) scale(1); opacity: 0; }
+  }
+  .confetti:nth-child(1) { left: 50%; background: #f6b932; --cx: -30px; animation-delay: 0s; }
+  .confetti:nth-child(2) { left: 30%; background: #c2402e; --cx: -10px; animation-delay: .3s; }
+  .confetti:nth-child(3) { left: 70%; background: #4dc8c8; --cx: 20px;  animation-delay: .6s; }
+  .confetti:nth-child(4) { left: 40%; background: #ffd66b; --cx: 25px;  animation-delay: .9s; }
+  .confetti:nth-child(5) { left: 60%; background: #1f3a66; --cx: -15px; animation-delay: 1.2s; }
+  .confetti:nth-child(6) { left: 45%; background: #f6b932; --cx: 35px;  animation-delay: 1.5s; }
+  .confetti:nth-child(7) { left: 55%; background: #c34a2e; --cx: -25px; animation-delay: 1.8s; }
+  .confetti:nth-child(8) { left: 35%; background: #4dc8c8; --cx: 12px;  animation-delay: 2.1s; }
+
+  /* ===== Scene life: stars, aurora, fireflies, campfire, cabin glow ===== */
+  .star { animation: twinkle 3.2s ease-in-out infinite; }
+  @keyframes twinkle { 0%,100% { opacity: .25; } 50% { opacity: 1; } }
+
+  .aurora-ribbon {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: auroraDrift 16s ease-in-out infinite alternate;
+  }
+  .aurora-ribbon.r2 { animation-duration: 22s; animation-delay: -6s; }
+  .aurora-ribbon.r3 { animation-duration: 19s; animation-delay: -11s; }
+  @keyframes auroraDrift {
+    0%   { transform: translateY(0) skewX(0deg); opacity: .8; }
+    50%  { transform: translateY(-14px) skewX(4deg); opacity: 1; }
+    100% { transform: translateY(-4px) skewX(-3deg); opacity: .75; }
+  }
+
+  .firefly { animation: ffBlink 2.6s ease-in-out infinite; }
+  @keyframes ffBlink { 0%,100% { opacity: 0; } 45%,60% { opacity: .95; } }
+
+  .flame {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    animation: flick .45s ease-in-out infinite alternate;
+  }
+  @keyframes flick { from { transform: scaleY(1) scaleX(1); } to { transform: scaleY(1.18) scaleX(.92); } }
+  #campGlow { animation: glowPulse 1.3s ease-in-out infinite alternate; }
+  @keyframes glowPulse { from { opacity: .25; } to { opacity: .5; } }
+  svg.night #campGlow { animation-name: glowPulseN; }
+  @keyframes glowPulseN { from { opacity: .5; } to { opacity: .85; } }
+
+  .cabin-win { transition: fill 1.5s ease; }
+  svg.night .cabin-win, svg.dusk .cabin-win { fill: #ffd966; }
+  .win-glow { opacity: 0; transition: opacity 1.5s ease; }
+  svg.night .win-glow { opacity: .65; }
+  svg.dusk .win-glow { opacity: .35; }
+
+  /* ===== HUD ===== */
+  header.hud {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 10;
+    padding: 20px 24px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    pointer-events: none;
+  }
+  .brand { pointer-events: auto; display: flex; align-items: center; gap: 12px; }
+  .brand-mark {
+    width: 40px; height: 40px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #1f3a66 0%, #3a6fa8 100%);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .brand-mark::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 55%, #fff 55.5%, #d8e6f4 100%);
+    clip-path: polygon(0 100%, 25% 60%, 50% 80%, 72% 35%, 100% 70%, 100% 100%);
+    opacity: 0.95;
+  }
+  .brand-text .name { font-family: 'Fraunces', serif; font-weight: 500; font-size: 17px; color: var(--text); }
+  .brand-text .name,
+  .brand-text .sub { text-shadow: 0 1px 6px rgba(255,255,255,0.5); }
+  .brand-text .sub { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+  svg-dark .brand-text .name { color: #fff; }
+
+  .hud-right { pointer-events: auto; display: flex; align-items: stretch; gap: 10px; }
+  .card {
+    background: var(--frost);
+    border: 1px solid var(--line);
+    backdrop-filter: blur(14px) saturate(150%);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    border-radius: 14px;
+    padding: 9px 13px;
+    box-shadow: 0 8px 24px rgba(20,30,50,0.12);
+  }
+  .weather-card { display: flex; align-items: center; gap: 10px; }
+  .weather-card .icon { font-size: 22px; line-height: 1; }
+  .weather-card .temp { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 500; line-height: 1.1; color: var(--text); }
+  .weather-card .desc { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted); margin-top: 2px; }
+
+  .progress-card { min-width: 160px; }
+  .progress-card .row { width: 100%; display: flex; justify-content: space-between; align-items: baseline; }
+  .progress-card .label { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--muted); }
+  .progress-card .pct { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 500; color: var(--text); }
+  .progress-bar { width: 100%; height: 4px; background: rgba(20,30,50,0.1); border-radius: 100px; margin-top: 6px; overflow: hidden; }
+  .progress-bar .fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold) 0%, var(--gold-soft) 100%);
+    border-radius: 100px;
+    box-shadow: 0 0 12px rgba(246,185,50,0.55);
+    width: 0;
+    transition: width 1.6s cubic-bezier(.22,1,.36,1);
+  }
+  .saved-line { font-size: 9.5px; color: #8a6510; font-weight: 800; margin-top: 6px; letter-spacing: 0.04em; white-space: nowrap; }
+
+  /* ===== Work log: live ticker, behind the scenes ===== */
+  .pill-worklog { display: none; flex-direction: column; min-height: 0; flex: 1; }
+  .wl-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 7px; }
+  .wl-title { font-size: 9.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); font-weight: 800; display: flex; align-items: center; gap: 6px; }
+  .wl-title::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--gold); }
+  .wl-meta { font-size: 10px; color: #8a6510; font-weight: 800; }
+  .wl-window {
+    flex: 1;
+    min-height: 96px;
+    max-height: 108px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: rgba(20,30,50,0.025);
+    padding: 0 10px;
+  }
+  .wl-mask {
+    height: 100%;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
+  }
+  .wl-list { list-style: none; animation: wlScroll var(--wl-dur, 26s) linear infinite; }
+  @keyframes wlScroll { to { transform: translateY(-50%); } }
+  .wl-list li {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 0;
+    font-size: 11px;
+    color: var(--text);
+    border-bottom: 1px solid var(--line);
+  }
+  .wl-tick { flex: 0 0 14px; width: 14px; height: 14px; border-radius: 50%; background: rgba(246,185,50,0.2); color: #8a6510; font-size: 8px; font-weight: 800; display: grid; place-items: center; }
+  .wl-text { flex: 1; line-height: 1.35; }
+  .wl-min { flex: 0 0 auto; font-size: 9.5px; color: var(--muted); font-weight: 800; }
+  .pec-right .pill-next { margin-top: 10px; }
+  .eta-card { min-width: 150px; }
+  .eta-card .label { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--muted); margin-bottom: 3px; }
+  .eta-card .date { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 500; color: var(--text); line-height: 1.1; }
+  .eta-card .countdown { font-size: 10.5px; color: var(--warm); margin-top: 3px; font-weight: 700; letter-spacing: 0.03em; }
+
+  /* ===== Side cards ===== */
+  .side-card {
+    position: fixed;
+    width: 250px;
+    z-index: 9;
+    background: var(--frost-strong);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 15px 17px;
+    box-shadow: 0 12px 32px rgba(20,30,50,0.15);
+    backdrop-filter: blur(18px) saturate(150%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+  }
+  .hurdles-card { left: 24px; top: 110px; opacity: 0; animation: slideInL 1s cubic-bezier(.22,1,.36,1) 3.4s forwards; }
+  @keyframes slideInL { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+  .broker-card { right: 24px; top: 110px; opacity: 0; animation: slideInR 1s cubic-bezier(.22,1,.36,1) 3.4s forwards; }
+  @keyframes slideInR { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+  .side-card .card-eyebrow {
+    font-size: 9.5px;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .side-card .card-eyebrow::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--gold); }
+  .hurdles-card .card-eyebrow::before { background: var(--warm); }
+  .side-card h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 17px;
+    line-height: 1.15;
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+  .hurdle-list { list-style: none; }
+  .hurdle-list li {
+    display: flex; gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .hurdle-list li:last-child { border-bottom: none; }
+  .hurdle-icon {
+    flex: 0 0 22px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: 11px;
+    font-weight: 700;
+    margin-top: -1px;
+  }
+  .hurdle-icon.o-you    { background: rgba(246,185,50,0.22); color: #8a6510; }
+  .hurdle-icon.o-us     { background: rgba(58,111,168,0.16); color: #2d5a8e; }
+  .hurdle-icon.o-dealer { background: rgba(217,122,74,0.16); color: var(--warm); }
+  .hurdle-text strong { display: block; font-weight: 600; font-size: 11.5px; margin-bottom: 1px; }
+  .hurdle-text span { color: var(--muted); font-size: 10.5px; }
+
+  .broker-head { display: flex; align-items: center; gap: 11px; margin-bottom: 11px; }
+  .broker-avatar {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1f3a66 0%, #3a6fa8 100%);
+    display: grid; place-items: center;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    color: var(--snow);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    box-shadow: 0 4px 12px rgba(20,30,50,0.25);
+    position: relative;
+  }
+  .broker-avatar::after {
+    content: "";
+    position: absolute;
+    bottom: -1px; right: -1px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: #4ace7e;
+    border: 2px solid #fff;
+  }
+  .broker-info .name { font-family: 'Fraunces', serif; font-weight: 500; font-size: 14px; line-height: 1.1; color: var(--text); }
+  .broker-info .role { font-size: 10.5px; color: var(--muted); margin-top: 2px; letter-spacing: 0.04em; }
+  .broker-note {
+    font-size: 11px;
+    color: var(--text);
+    line-height: 1.4;
+    padding: 8px 10px;
+    background: rgba(74,206,126,0.12);
+    border-radius: 8px;
+    border-left: 2px solid #4ace7e;
+    margin-bottom: 11px;
+  }
+  .online-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; color: #2d7a4e; font-weight: 800; margin-top: 3px; letter-spacing: 0.04em; }
+  .ot-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ace7e; box-shadow: 0 0 6px rgba(74,206,126,0.8); animation: otPulse 2s ease-in-out infinite; }
+  @keyframes otPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+  .online-tag.off { color: var(--muted); }
+  .online-tag.off .ot-dot { background: #9fb0c4; box-shadow: none; animation: none; }
+  .broker-actions { display: flex; gap: 5px; }
+  .broker-btn {
+    flex: 1;
+    padding: 8px 5px;
+    border-radius: 8px;
+    border: 1px solid var(--line-2);
+    background: rgba(255,255,255,0.5);
+    font-family: 'Manrope', sans-serif;
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text);
+    cursor: pointer;
+    transition: background .2s, transform .2s;
+    display: flex; align-items: center; justify-content: center;
+    gap: 4px;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .broker-btn:hover { background: var(--snow); transform: translateY(-1px); }
+  .broker-btn.primary {
+    background: linear-gradient(135deg, #1f3a66 0%, #3a6fa8 100%);
+    color: var(--snow);
+    border-color: transparent;
+  }
+  .broker-btn.primary:hover { background: linear-gradient(135deg, #1c3458 0%, #356296 100%); }
+
+  /* ===== Notice inside the stage card ===== */
+  .pill-notice {
+    display: none;
+    font-size: 11px;
+    line-height: 1.45;
+    padding: 8px 11px;
+    border-radius: 8px;
+    margin-top: 10px;
+    font-weight: 600;
+  }
+  .pill-notice.n-future { background: rgba(20,30,50,0.05); border: 1.5px dashed rgba(20,30,50,0.22); color: var(--muted); }
+  .pill-notice.n-done { background: rgba(74,206,126,0.12); border: 1px solid rgba(74,206,126,0.45); color: #2d6a28; }
+
+  /* ===== Corner cluster: theme + feedback ===== */
+  .corner-cluster {
+    position: fixed;
+    right: 24px; bottom: 24px;
+    z-index: 9;
+    display: flex; flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    opacity: 0;
+    animation: fadeUp 1s ease 4.2s forwards;
+  }
+  .theme-btn {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: var(--frost-strong);
+    border: 1px solid var(--line-2);
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 8px 22px rgba(20,30,50,0.18);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: transform .2s;
+  }
+  .theme-btn:hover { transform: scale(1.1) rotate(-8deg); }
+  .fb-chip {
+    font-family: 'Manrope', sans-serif;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--text);
+    background: var(--frost-strong);
+    border: 1px solid var(--line-2);
+    padding: 9px 14px;
+    border-radius: 100px;
+    cursor: pointer;
+    box-shadow: 0 8px 22px rgba(20,30,50,0.18);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: transform .2s, background .2s;
+  }
+  .fb-chip:hover { transform: translateY(-2px); background: #fff; }
+  .cheer-chip {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: var(--text);
+    background: var(--frost-strong);
+    border: 1px solid rgba(246,185,50,0.6);
+    padding: 9px 12px;
+    border-radius: 100px;
+    cursor: pointer;
+    box-shadow: 0 8px 22px rgba(20,30,50,0.18);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: transform .15s;
+  }
+  .cheer-chip:hover { transform: translateY(-2px); }
+  .cheer-chip.pop { animation: cheerPop .3s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes cheerPop { 50% { transform: scale(1.12); } }
+  .cheer-count {
+    background: var(--gold);
+    color: #4a3508;
+    border-radius: 100px;
+    min-width: 20px;
+    padding: 2px 7px;
+    font-size: 10px;
+    font-weight: 800;
+    text-align: center;
+  }
+  .cheer-float {
+    position: fixed;
+    z-index: 120;
+    font-size: 15px;
+    font-weight: 800;
+    color: #8a6510;
+    text-shadow: 0 1px 0 #fff;
+    pointer-events: none;
+    animation: cheerFloat 1s ease-out forwards;
+  }
+  @keyframes cheerFloat {
+    from { opacity: 1; transform: translate(-50%, 0); }
+    to   { opacity: 0; transform: translate(-50%, -44px); }
+  }
+  .fab-mini { padding: 0 !important; width: 40px; height: 40px; justify-content: center; border-radius: 50% !important; font-size: 16px; }
+  @media (max-width: 420px) {
+    .fab-mini { width: 36px; height: 36px; font-size: 14px; }
+    .mobile-fabs { gap: 6px; }
+  }
+
+  /* ===== Feedback modal ===== */
+  .feedback-modal {
+    position: fixed;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%) scale(0.96);
+    width: min(480px, calc(100vw - 32px));
+    max-height: 86vh;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 20px;
+    padding: 22px;
+    z-index: 101;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s ease, transform .3s cubic-bezier(.22,1,.36,1);
+    box-shadow: 0 24px 70px rgba(10,20,40,0.35);
+  }
+  .feedback-modal.open { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
+  .feedback-modal h3 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 21px; margin-bottom: 10px; color: var(--text); }
+  .fb-disc {
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: var(--text);
+    background: rgba(58,111,168,0.1);
+    border-left: 3px solid #3a6fa8;
+    border-radius: 8px;
+    padding: 9px 12px;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+  .fb-group-title { font-size: 9.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); font-weight: 800; margin: 12px 0 7px; display: flex; align-items: center; gap: 6px; }
+  .fb-group-title::before { content: ""; width: 6px; height: 6px; border-radius: 50%; }
+  .fb-group-title.g::before { background: #4ace7e; }
+  .fb-group-title.b::before { background: var(--warm); }
+  .fb-opt {
+    display: block; width: 100%;
+    text-align: left;
+    padding: 9px 12px;
+    border: 1px solid var(--line-2);
+    border-radius: 10px;
+    background: rgba(20,30,50,0.03);
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px;
+    color: var(--text);
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    line-height: 1.4;
+  }
+  .fb-opt:hover { background: rgba(20,30,50,0.06); }
+  .fb-opt.sel.good { border-color: #4ace7e; background: rgba(74,206,126,0.12); }
+  .fb-opt.sel.bad { border-color: var(--warm); background: rgba(217,122,74,0.12); }
+  .fb-shuffle {
+    background: none; border: none;
+    font-family: 'Manrope', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 6px 0;
+    margin: 2px 0 6px;
+  }
+  .fb-shuffle:hover { color: var(--text); }
+  .fb-text {
+    width: 100%;
+    min-height: 70px;
+    border: 1px solid var(--line-2);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 12.5px;
+    color: var(--text);
+    resize: vertical;
+    margin-bottom: 10px;
+  }
+  .fb-text:focus { outline: none; border-color: #3a6fa8; }
+  .fb-send {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #1f3a66 0%, #3a6fa8 100%);
+    color: #fff;
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .fb-send:hover { background: linear-gradient(135deg, #1c3458 0%, #356296 100%); }
+  .fb-thanks { display: none; font-size: 12px; color: #2d6a28; font-weight: 700; text-align: center; margin-top: 10px; }
+  @media (max-width: 760px) {
+    .corner-cluster { display: none; }
+    .feedback-modal {
+      left: 0; right: 0; top: auto; bottom: 0;
+      width: auto;
+      transform: translateY(100%);
+      border-radius: 22px 22px 0 0;
+      padding: 24px 22px 30px;
+    }
+    .feedback-modal.open { transform: translateY(0); }
+  }
+
+  /* ===== Updated chip ===== */
+  .updated-chip {
+    position: fixed;
+    left: 24px; bottom: 24px;
+    z-index: 9;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--frost);
+    border: 1px solid var(--line);
+    padding: 6px 11px;
+    border-radius: 100px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    opacity: 0;
+    animation: fadeUp 1s ease 4s forwards;
+  }
+
+  /* ===== Stage pill ===== */
+  .stage-pill-wrap {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 11;
+    width: min(560px, calc(100vw - 32px));
+    transition: width .55s cubic-bezier(.22,1,.36,1);
+  }
+  /* one-shot intro: removed by JS the first time the pill opens */
+  .stage-pill-wrap.intro {
+    opacity: 0;
+    animation: fadeUp 1s cubic-bezier(.22,1,.36,1) 3.8s forwards;
+  }
+  /* Expanded stays a compact, centered card over the lake.
+     The mountain, trail and markers are never covered. */
+  @keyframes fadeUp { to { opacity: 1; } }
+  .stage-pill {
+    background: rgba(255,255,255,0.94);
+    border: 1px solid var(--line);
+    backdrop-filter: blur(18px) saturate(150%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    border-radius: 18px;
+    box-shadow: 0 16px 40px rgba(20,30,50,0.2);
+    overflow: hidden;
+    transition: max-height .55s cubic-bezier(.22,1,.36,1);
+    max-height: 70px;
+  }
+  .stage-pill.expanded { max-height: min(340px, 52vh); }
+  .pill-progress { height: 3px; background: rgba(20,30,50,0.08); }
+  .pill-progress .pp-fill {
+    height: 100%; width: 0;
+    background: linear-gradient(90deg, var(--gold), var(--gold-soft));
+    box-shadow: 0 0 8px rgba(246,185,50,0.6);
+    transition: width .9s cubic-bezier(.22,1,.36,1);
+  }
+  .pill-collapsed { display: flex; align-items: center; padding: 14px 16px; gap: 14px; cursor: pointer; }
+  .pill-status {
+    flex: 0 0 auto;
+    font-size: 9.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 4px 9px;
+    border-radius: 100px;
+    font-weight: 600;
+  }
+  .pill-status.s-current { color: #6b4f10; background: var(--gold); }
+  .pill-status.s-done    { color: var(--snow); background: var(--rock-2); }
+  .pill-status.s-future  { color: var(--text); background: rgba(20,30,50,0.08); border: 1px solid var(--line-2); }
+  .pill-title { flex: 1; min-width: 0; }
+  .pill-title .step { font-size: 9.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); margin-bottom: 1px; }
+  .pill-title .name { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 500; line-height: 1.1; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pill-actions { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; }
+  .pill-nav-btn {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: rgba(20,30,50,0.06);
+    border: 1px solid var(--line-2);
+    color: var(--text);
+    cursor: pointer;
+    display: grid; place-items: center;
+    transition: background .25s, transform .25s;
+  }
+  .pill-nav-btn:hover { background: rgba(20,30,50,0.12); transform: translateY(-1px); }
+  .pill-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+  .pill-nav-btn svg { width: 12px; height: 12px; }
+  .pill-toggle {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--gold);
+    border: none;
+    color: var(--text);
+    cursor: pointer;
+    display: grid; place-items: center;
+    transition: transform .35s;
+    box-shadow: 0 4px 10px rgba(246,185,50,0.45);
+  }
+  .pill-toggle svg { width: 12px; height: 12px; transition: transform .35s; }
+  .stage-pill.expanded .pill-toggle svg { transform: rotate(180deg); }
+  .pill-expanded-content { padding: 0 16px 13px; border-top: 1px solid var(--line); margin-top: 4px; overflow-y: auto; max-height: calc(min(340px, 52vh) - 84px); }
+  .pill-expanded-content::-webkit-scrollbar { width: 4px; }
+  .pill-expanded-content::-webkit-scrollbar-thumb { background: rgba(20,30,50,0.18); border-radius: 100px; }
+  .pec-grid { display: grid; grid-template-columns: 1fr; gap: 0; padding-top: 10px; }
+  .pec-grid.single { grid-template-columns: 1fr; }
+  .pec-left { min-width: 0; }
+  .pec-right { display: flex; flex-direction: column; min-width: 0; margin-top: 12px; }
+  .pec-grid .pill-meta { margin-top: 0; }
+  .pill-meta { font-size: 11px; color: var(--muted); margin-top: 12px; margin-bottom: 10px; letter-spacing: 0.04em; }
+  .pill-body { font-size: 12.5px; line-height: 1.55; color: var(--text); margin-bottom: 12px; }
+  .pill-checklist { list-style: none; }
+  .pill-checklist li {
+    display: flex; align-items: center; gap: 9px;
+    padding: 6px 0;
+    font-size: 11.5px;
+    color: var(--text);
+    border-bottom: 1px solid var(--line);
+    opacity: 0;
+    animation: liIn .4s ease forwards;
+  }
+  @keyframes liIn { from { opacity: 0; transform: translateX(-6px); } to { opacity: 1; transform: none; } }
+  .pill-checklist li:last-child { border-bottom: none; }
+  .pill-checklist .check {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(20,35,60,0.25);
+    display: grid; place-items: center;
+    flex: 0 0 16px;
+    font-size: 9px;
+    color: var(--muted);
+  }
+  .pill-checklist li.done .check { background: rgba(74,138,64,0.18); border-color: rgba(74,138,64,0.5); color: #2d6a28; }
+  .pill-checklist li.active .check { background: rgba(246,185,50,0.22); border-color: var(--gold); color: #6b4f10; }
+  .pill-next {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .pill-next button {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'Manrope', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 5px;
+    transition: color .2s;
+    padding: 4px 0;
+  }
+  .pill-next button:hover { color: var(--text); }
+  .pill-return {
+    display: none;
+    background: #ffefc9;
+    border: 1px solid #e3b54a;
+    color: #6b4f10;
+    padding: 5px 10px;
+    border-radius: 100px;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    margin-right: 4px;
+  }
+  .pill-return.visible { display: inline-block; }
+
+  /* ===== Mobile FABs + sheets ===== */
+  .mobile-fabs {
+    display: none;
+    position: fixed;
+    left: 14px; right: 14px;
+    bottom: calc(64px + 12px + 10px);
+    z-index: 11;
+    gap: 8px;
+    pointer-events: none;
+  }
+  .mobile-fabs .fab-spacer { flex: 1; }
+  .fab {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border-radius: 100px;
+    background: var(--frost-strong);
+    border: 1px solid var(--line-2);
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 8px 22px rgba(20,30,50,0.25);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    position: relative;
+  }
+  .fab .fab-icon {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    flex-shrink: 0;
+  }
+  .fab-hurdles .fab-icon { background: rgba(217,122,74,0.2); color: var(--warm); }
+  .fab-broker .fab-icon { background: linear-gradient(135deg, #1f3a66, #3a6fa8); color: var(--snow); font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 10px; }
+  .fab-badge {
+    position: absolute;
+    top: -4px; right: -4px;
+    background: var(--warm);
+    color: #fff;
+    border-radius: 100px;
+    font-size: 9px;
+    padding: 2px 6px;
+    font-weight: 700;
+    border: 2px solid #fff;
+  }
+  .fab-dot {
+    position: absolute;
+    top: 6px; left: 32px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #4ace7e;
+    border: 2px solid #fff;
+  }
+
+  .sheet-overlay {
+    position: fixed; inset: 0;
+    background: rgba(15, 25, 40, 0.55);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .35s ease;
+    z-index: 90;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+  }
+  .sheet-overlay.visible { opacity: 1; pointer-events: auto; }
+  .bottom-sheet {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: #fff;
+    border-radius: 22px 22px 0 0;
+    padding: 24px 22px 28px;
+    z-index: 100;
+    transform: translateY(100%);
+    transition: transform .45s cubic-bezier(.22,1,.36,1);
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
+  }
+  .bottom-sheet.open { transform: translateY(0); }
+  .sheet-handle { width: 40px; height: 4px; background: rgba(20,30,50,0.15); border-radius: 100px; margin: -6px auto 18px; }
+  .sheet-eyebrow { font-size: 9.5px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .bottom-sheet h3 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 22px; margin-bottom: 14px; color: var(--text); }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 1100px) { .side-card { width: 230px; padding: 13px 15px; } }
+  @media (max-width: 920px) {
+    .hurdles-card { left: 16px; top: 100px; }
+    .broker-card  { right: 16px; top: 100px; }
+    .side-card    { width: 210px; }
+    .hud-right .progress-card { min-width: 130px; }
+    .hud-right .eta-card { min-width: 130px; }
+    .updated-chip { display: none; }
+  }
+  .swipe-hint {
+    position: fixed; left: 50%; transform: translateX(-50%);
+    bottom: 198px; z-index: 8;
+    font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 800;
+    color: var(--text);
+    background: rgba(255,255,255,0.88);
+    border: 1px solid var(--line-2);
+    padding: 6px 13px; border-radius: 100px;
+    box-shadow: 0 4px 14px rgba(20,30,50,0.16);
+    opacity: 0; pointer-events: none;
+    transition: opacity .45s ease;
+  }
+  body.pannable .swipe-hint { opacity: 0.95; }
+  body.pannable .swipe-hint.gone { opacity: 0; }
+  .hurdle-empty { font-size: 12.5px; color: var(--muted); padding: 8px 0; }
+  html, body { overscroll-behavior: none; }
+  #world { touch-action: none; user-select: none; -webkit-user-select: none; }
+  @media (max-width: 430px) {
+    .weather-card { display: none; }
+  }
+  @media (max-width: 760px) {
+    .stage-pill, .live-strip, .bottom-sheet, .feedback-modal, .hud-card, .fab,
+    .swipe-hint, .cheer-chip, .fb-chip, .theme-btn, .hurdles-card, .broker-card {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+    .stage-pill { background: rgba(255,255,255,0.97); }
+    .hud-card { background: rgba(255,255,255,0.93); }
+    .bottom-sheet, .feedback-modal { background: #fff; }
+    .fab { background: rgba(255,255,255,0.96); }
+    .stage-label { font-size: 6.5px; padding: 1px 5px; letter-spacing: 0.02em; opacity: 0.8; }
+    .stage[data-tier="1"] .stage-label { bottom: 38px; }
+    .stage.current .stage-label { font-size: 7.5px; padding: 2px 7px; bottom: 24px; }
+    header.hud { padding: 10px 14px; gap: 8px; }
+    .brand-text .sub { display: none; }
+    .brand-text .name { font-size: 14px; }
+    .brand-mark { width: 34px; height: 34px; }
+    .hud-right { gap: 6px; flex-shrink: 0; }
+    .card { padding: 7px 10px; }
+    .weather-card { gap: 7px; }
+    .weather-card .icon { font-size: 18px; }
+    .weather-card .temp { font-size: 15px; }
+    .weather-card .desc { display: none; }
+    .eta-card { display: none; }
+    .progress-card { min-width: 100px; }
+    .progress-card .label { font-size: 9px; }
+    .progress-card .pct { font-size: 14px; }
+    .hurdles-card, .broker-card { display: none; }
+    .mobile-fabs { display: flex; }
+    .stage-pill-wrap { bottom: 12px; width: calc(100vw - 24px); }
+    .stage-pill { max-height: 64px; }
+    .stage-pill.expanded { max-height: min(540px, 82vh); }
+    .pill-expanded-content { max-height: calc(min(540px, 82vh) - 80px); }
+    .wl-window { min-height: 100px; max-height: 116px; }
+    .live-strip { background: rgba(255,255,255,0.94); }
+    .pill-collapsed { padding: 11px 12px; gap: 10px; }
+    .pill-status { font-size: 9px; padding: 3px 7px; }
+    .pill-title .step { font-size: 9px; }
+    .pill-title .name { font-size: 15px; }
+    .pill-nav-btn, .pill-toggle { width: 28px; height: 28px; }
+    .pill-expanded-content { padding: 0 14px 14px; }
+    .pill-body { font-size: 12px; }
+    .pill-checklist li { font-size: 11.5px; padding: 5px 0; }
+  }
+  @media (max-width: 380px) {
+    .progress-card { display: none; }
+    .mobile-fabs { bottom: calc(64px + 12px + 8px); }
+    .fab { padding: 8px 11px; font-size: 10px; gap: 6px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .01s !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: .2s !important;
+    }
+    #world.intro-zoom { transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Cinematic intro ===== -->
+<div class="intro" id="intro">
+  <div class="intro-eyebrow">Fund One Expedition · File <span id="introRef">AL-24819</span></div>
+  <div class="intro-title" id="introTitle">Your Journey</div>
+  <div class="intro-rule"></div>
+  <div class="intro-sub">Base camp to settlement</div>
+</div>
+
+<div class="toast" id="toast"><span class="spark">🎉</span><span id="toastText"></span></div>
+
+<div id="world" class="intro-zoom">
+<div class="scene">
+  <svg class="sky-svg" id="sceneSvg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+        <stop id="skyTop" offset="0"   stop-color="#4d96c8"/>
+        <stop id="skyMid" offset="0.5" stop-color="#86bfde"/>
+        <stop id="skyBot" offset="1"   stop-color="#d4eaf2"/>
+      </linearGradient>
+      <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0"   stop-color="rgba(255,240,200,0.95)"/>
+        <stop offset="0.3" stop-color="rgba(255,225,170,0.45)"/>
+        <stop offset="1"   stop-color="rgba(255,225,170,0)"/>
+      </radialGradient>
+      <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0"   stop-color="rgba(220,230,255,0.55)"/>
+        <stop offset="0.4" stop-color="rgba(200,215,255,0.18)"/>
+        <stop offset="1"   stop-color="rgba(200,215,255,0)"/>
+      </radialGradient>
+      <linearGradient id="auroraGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0"   stop-color="rgba(90,240,190,0)"/>
+        <stop offset="0.25" stop-color="rgba(90,240,190,0.55)"/>
+        <stop offset="0.55" stop-color="rgba(120,220,160,0.5)"/>
+        <stop offset="0.8" stop-color="rgba(160,130,240,0.45)"/>
+        <stop offset="1"   stop-color="rgba(160,130,240,0)"/>
+      </linearGradient>
+      <linearGradient id="mtnFar" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#9eb6cf"/>
+        <stop offset="1" stop-color="#6f87a8"/>
+      </linearGradient>
+      <linearGradient id="mtnMid" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#7894b4"/>
+        <stop offset="1" stop-color="#4d6688"/>
+      </linearGradient>
+      <linearGradient id="mtnRock" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0"    stop-color="#ffffff"/>
+        <stop offset="0.18" stop-color="#f4f6fa"/>
+        <stop offset="0.32" stop-color="#dbe2ec"/>
+        <stop offset="0.55" stop-color="#7c93b0"/>
+        <stop offset="0.85" stop-color="#4a5e7a"/>
+        <stop offset="1"    stop-color="#2a3a52"/>
+      </linearGradient>
+      <linearGradient id="mtnShade" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0"   stop-color="rgba(0,0,0,0.18)"/>
+        <stop offset="0.5" stop-color="rgba(0,0,0,0)"/>
+        <stop offset="1"   stop-color="rgba(0,0,0,0.28)"/>
+      </linearGradient>
+      <linearGradient id="alpenWarm" x1="0" y1="0" x2="1" y2="0.3">
+        <stop offset="0" stop-color="rgba(255,180,120,0)"/>
+        <stop offset="1" stop-color="rgba(255,170,110,0.55)"/>
+      </linearGradient>
+      <linearGradient id="forest" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#3a6a44"/>
+        <stop offset="1" stop-color="#1f4a2a"/>
+      </linearGradient>
+      <linearGradient id="meadow" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#7eb368"/>
+        <stop offset="0.5" stop-color="#5f9750"/>
+        <stop offset="1" stop-color="#4a7c40"/>
+      </linearGradient>
+      <radialGradient id="lakeGrad" cx="50%" cy="40%" r="60%">
+        <stop offset="0"   stop-color="#7adede"/>
+        <stop offset="0.5" stop-color="#4dc4c4"/>
+        <stop offset="1"   stop-color="#2a8a8c"/>
+      </radialGradient>
+      <linearGradient id="trailGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0"   stop-color="#8a6a3a"/>
+        <stop offset="0.5" stop-color="#f6b932"/>
+        <stop offset="1"   stop-color="#8a6a3a"/>
+      </linearGradient>
+      <filter id="softBlur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3"/></filter>
+      <filter id="heavyBlur" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="9"/></filter>
+      <filter id="auroraBlur" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="12"/></filter>
+      <pattern id="lakeRipples" x="0" y="0" width="80" height="14" patternUnits="userSpaceOnUse">
+        <path d="M 0 7 Q 20 4 40 7 T 80 7" stroke="rgba(255,255,255,0.18)" stroke-width="0.6" fill="none"/>
+      </pattern>
+    </defs>
+
+    <rect x="-600" y="-1400" width="2400" height="2100" fill="url(#sky)"/>
+
+    <!-- Aurora (night only) -->
+    <g id="auroraGrp" opacity="0" style="transition: opacity 2s ease;">
+      <path class="aurora-ribbon"    d="M -50 180 Q 250 90 560 150 Q 880 210 1260 110" stroke="url(#auroraGrad)" stroke-width="52" fill="none" filter="url(#auroraBlur)" stroke-linecap="round"/>
+      <path class="aurora-ribbon r2" d="M -50 110 Q 320 40 640 95 Q 950 145 1260 60"  stroke="url(#auroraGrad)" stroke-width="38" fill="none" filter="url(#auroraBlur)" stroke-linecap="round" opacity="0.7"/>
+      <path class="aurora-ribbon r3" d="M -50 250 Q 300 180 620 225 Q 920 265 1260 190" stroke="url(#auroraGrad)" stroke-width="30" fill="none" filter="url(#auroraBlur)" stroke-linecap="round" opacity="0.55"/>
+    </g>
+
+    <!-- Stars (night only) -->
+    <g id="starsGrp" opacity="0" style="transition: opacity 1.8s ease;"></g>
+
+    <g id="parallax-back">
+      <!-- Sun -->
+      <g id="sunGrp" transform="translate(1020,130)" style="transition: opacity 1.4s ease;">
+        <circle r="140" fill="url(#sunGlow)"/>
+        <circle id="sunCore"  r="32" fill="#fff5d0"/>
+        <circle id="sunInner" r="20" fill="#ffeeb0"/>
+      </g>
+      <!-- Moon -->
+      <g id="moonGrp" transform="translate(960,150)" opacity="0" style="transition: opacity 1.8s ease;">
+        <circle r="90" fill="url(#moonGlow)"/>
+        <circle r="22" fill="#eef0f8"/>
+        <circle cx="-7" cy="-4" r="4.5" fill="#d8dcea" opacity="0.8"/>
+        <circle cx="6" cy="6" r="3" fill="#d8dcea" opacity="0.7"/>
+        <circle cx="8" cy="-8" r="2.2" fill="#dde1ee" opacity="0.7"/>
+      </g>
+      <!-- Clouds (drifting) -->
+      <g id="cloudsGrp" opacity="0.85" style="transition: opacity 1.8s ease;">
+        <g>
+          <animateTransform attributeName="transform" type="translate" values="0 0; 38 0; 0 0" dur="95s" repeatCount="indefinite"/>
+          <ellipse cx="180" cy="180" rx="80" ry="12" fill="#ffffff" filter="url(#softBlur)"/>
+          <ellipse cx="240" cy="190" rx="60" ry="10" fill="#ffffff" filter="url(#softBlur)"/>
+          <ellipse cx="450" cy="160" rx="55" ry="9" fill="#ffffff" filter="url(#softBlur)" opacity="0.6"/>
+        </g>
+        <g>
+          <animateTransform attributeName="transform" type="translate" values="0 0; -46 0; 0 0" dur="120s" repeatCount="indefinite"/>
+          <ellipse cx="780" cy="220" rx="100" ry="14" fill="#ffffff" filter="url(#softBlur)"/>
+          <ellipse cx="850" cy="230" rx="50" ry="10" fill="#ffffff" filter="url(#softBlur)" opacity="0.7"/>
+        </g>
+      </g>
+      <!-- Heavy cloud deck (cloudy / rain weather only) -->
+      <g id="cloudDeck" opacity="0" style="transition: opacity 2s ease;">
+        <ellipse cx="200" cy="120" rx="240" ry="34" fill="#dde6ee" filter="url(#heavyBlur)"/>
+        <ellipse cx="640" cy="90"  rx="300" ry="40" fill="#d4dde8" filter="url(#heavyBlur)"/>
+        <ellipse cx="1040" cy="130" rx="260" ry="36" fill="#dde6ee" filter="url(#heavyBlur)"/>
+        <ellipse cx="420" cy="170" rx="220" ry="30" fill="#e4ebf2" filter="url(#heavyBlur)" opacity="0.8"/>
+        <ellipse cx="880" cy="185" rx="240" ry="32" fill="#e4ebf2" filter="url(#heavyBlur)" opacity="0.8"/>
+      </g>
+      <g id="eagle" transform="translate(700,200)">
+        <path d="M 0 0 Q -8 -4 -14 0 Q -8 -2 0 -1 Q 8 -2 14 0 Q 8 -4 0 0 Z" fill="#1f2533" opacity="0.85"/>
+        <animateMotion dur="40s" repeatCount="indefinite" path="M 0 0 C 100 -40 200 -30 250 -60 C 320 -80 400 -50 450 -30 C 500 -20 460 30 380 40 C 300 50 180 30 80 50 C 0 60 -40 30 0 0 Z"/>
+      </g>
+    </g>
+
+    <g id="layer-far">
+      <path d="M -600 460 L 0 470 L 120 380 L 220 430 L 330 360 L 430 410 L 560 340 L 660 400 L 780 350 L 880 410 L 990 360 L 1090 410 L 1200 380 L 1800 450 L 1800 700 L -600 700 Z" fill="url(#mtnFar)" opacity="0.85"/>
+      <path d="M 120 380 L 145 395 L 100 395 Z M 330 360 L 360 380 L 305 380 Z M 560 340 L 595 365 L 525 365 Z M 780 350 L 815 375 L 745 375 Z M 990 360 L 1020 380 L 960 380 Z" fill="#ffffff" opacity="0.75"/>
+    </g>
+
+    <g id="layer-mid">
+      <path d="M -600 530 L 0 540 L 100 470 L 200 510 L 290 450 L 400 490 L 520 430 L 640 480 L 760 420 L 870 470 L 980 440 L 1080 480 L 1200 460 L 1800 520 L 1800 700 L -600 700 Z" fill="url(#mtnMid)" opacity="0.9"/>
+      <path d="M 290 450 L 320 475 L 260 475 Z M 520 430 L 555 460 L 485 460 Z M 760 420 L 795 450 L 725 450 Z M 980 440 L 1010 465 L 950 465 Z" fill="#ffffff" opacity="0.65"/>
+      <rect x="-600" y="490" width="2400" height="80" fill="rgba(150,180,220,0.18)" filter="url(#heavyBlur)"/>
+    </g>
+
+    <g id="layer-main">
+      <path d="M -600 700 L -600 618 L 60 612 L 160 562 L 260 502 L 360 427 L 470 327 L 600 100 L 730 327 L 840 427 L 940 502 L 1140 612 L 1800 618 L 1800 700 Z" fill="url(#mtnRock)"/>
+      <path d="M -600 618 L 60 612 L 160 562 L 260 502 L 360 427 L 470 327 L 600 100 L 730 327 L 840 427 L 940 502 L 1140 612 L 1800 618 L 1800 700 L -600 700 Z" fill="url(#mtnShade)" opacity="0.5"/>
+      <path id="alpenPath" d="M 600 100 L 660 200 L 730 327 L 840 427 L 940 502 L 1140 612 L 600 612 Z" fill="url(#alpenWarm)" opacity="0.4" style="transition: opacity 2s ease;"/>
+      <path d="M 360 427 Q 470 360 540 220 L 600 100 L 660 220 Q 750 360 840 427" stroke="#ffffff" stroke-width="3.5" fill="none" opacity="0.7" stroke-linecap="round"/>
+      <g stroke="#2a3a52" stroke-width="1.3" fill="none" opacity="0.4">
+        <path d="M 600 110 L 588 200 L 605 280 L 590 360 L 615 460"/>
+        <path d="M 540 220 L 515 320 L 540 420"/>
+        <path d="M 660 220 L 685 320 L 660 420"/>
+        <path d="M 460 325 L 425 420"/>
+        <path d="M 740 325 L 775 420"/>
+      </g>
+      <g transform="translate(600, 100)">
+        <line x1="0" y1="0" x2="0" y2="-26" stroke="#2a3a52" stroke-width="1.5"/>
+        <path d="M 0 -26 L 14 -22 L 0 -18 Z" fill="#c2402e"/>
+      </g>
+      <g transform="translate(380,478)" opacity="0.85">
+        <g transform="scale(0.9)">
+          <ellipse cx="0" cy="-2" rx="4" ry="2.2" fill="#3a3a3a"/>
+          <circle cx="4" cy="-3" r="1.5" fill="#3a3a3a"/>
+          <line x1="-2.5" y1="0" x2="-3" y2="2" stroke="#3a3a3a" stroke-width="0.8"/>
+          <line x1="2.5" y1="0" x2="3" y2="2" stroke="#3a3a3a" stroke-width="0.8"/>
+          <line x1="-1" y1="0" x2="-1.5" y2="2" stroke="#3a3a3a" stroke-width="0.8"/>
+          <line x1="1" y1="0" x2="1.5" y2="2" stroke="#3a3a3a" stroke-width="0.8"/>
+          <line x1="4.5" y1="-4" x2="5.5" y2="-5.5" stroke="#3a3a3a" stroke-width="0.6"/>
+        </g>
+        <g transform="translate(11,1) scale(0.75)">
+          <ellipse cx="0" cy="-2" rx="4" ry="2.2" fill="#3a3a3a"/>
+          <circle cx="4" cy="-3" r="1.5" fill="#3a3a3a"/>
+          <line x1="-2.5" y1="0" x2="-3" y2="2" stroke="#3a3a3a" stroke-width="0.8"/>
+          <line x1="2.5" y1="0" x2="3" y2="2" stroke="#3a3a3a" stroke-width="0.8"/>
+        </g>
+      </g>
+      <g fill="#3a3a3a" opacity="0.6">
+        <circle cx="220" cy="540" r="1.6"/><circle cx="220" cy="537" r="1.3"/><circle cx="220" cy="534.5" r="1"/>
+        <circle cx="900" cy="540" r="1.6"/><circle cx="900" cy="537" r="1.3"/><circle cx="900" cy="534.5" r="1"/>
+      </g>
+    </g>
+
+    <g id="layer-treeline" fill="url(#forest)">
+      <path d="M -600 615 L 60 605 L 160 558 L 260 500 L 270 510 L 280 502 L 290 512 L 300 504 L 310 514 L 320 506 L 330 516 L 340 508 L 350 518 L 360 510 L 370 520 L 380 512 L 390 522 L 400 514 L 410 524 L 420 516 L 425 530 L 80 580 L -600 615 Z" opacity="0.95"/>
+      <path d="M 1800 615 L 1140 605 L 1040 558 L 940 500 L 930 510 L 920 502 L 910 512 L 900 504 L 890 514 L 880 506 L 870 516 L 860 508 L 850 518 L 840 510 L 830 520 L 820 512 L 810 522 L 800 514 L 790 524 L 780 516 L 775 530 L 1120 580 L 1800 615 Z" opacity="0.95"/>
+      <g>
+        <g transform="translate(90,595)"><path d="M -3 0 L 0 -10 L 3 0 Z M -2 -4 L 0 -14 L 2 -4 Z"/></g>
+        <g transform="translate(110,588)"><path d="M -3 0 L 0 -11 L 3 0 Z M -2 -4 L 0 -15 L 2 -4 Z"/></g>
+        <g transform="translate(135,575)"><path d="M -3 0 L 0 -10 L 3 0 Z M -2 -4 L 0 -14 L 2 -4 Z"/></g>
+        <g transform="translate(175,555)"><path d="M -3 0 L 0 -9 L 3 0 Z M -2 -4 L 0 -13 L 2 -4 Z"/></g>
+        <g transform="translate(205,538)"><path d="M -3 0 L 0 -8 L 3 0 Z M -2 -3 L 0 -12 L 2 -3 Z"/></g>
+        <g transform="translate(1070,588)"><path d="M -3 0 L 0 -10 L 3 0 Z M -2 -4 L 0 -14 L 2 -4 Z"/></g>
+        <g transform="translate(1090,580)"><path d="M -3 0 L 0 -11 L 3 0 Z M -2 -4 L 0 -15 L 2 -4 Z"/></g>
+        <g transform="translate(1050,595)"><path d="M -3 0 L 0 -10 L 3 0 Z M -2 -4 L 0 -14 L 2 -4 Z"/></g>
+        <g transform="translate(1020,602)"><path d="M -3 0 L 0 -10 L 3 0 Z M -2 -4 L 0 -14 L 2 -4 Z"/></g>
+        <g transform="translate(995,592)"><path d="M -3 0 L 0 -10 L 3 0 Z M -2 -4 L 0 -14 L 2 -4 Z"/></g>
+      </g>
+    </g>
+
+    <g id="layer-valley">
+      <path d="M -600 616 L 0 612 Q 300 625 600 618 Q 900 612 1200 622 L 1800 626 L 1800 700 L -600 700 Z" fill="url(#meadow)"/>
+      <rect x="-600" y="698" width="2400" height="1000" fill="#47783e"/>
+      <g>
+        <circle cx="80" cy="650" r="1.5" fill="#f8b8d4"/><circle cx="120" cy="665" r="1.3" fill="#f4d96b"/>
+        <circle cx="155" cy="658" r="1.4" fill="#e8a4c4"/><circle cx="200" cy="672" r="1.2" fill="#b58dc8"/>
+        <circle cx="245" cy="660" r="1.6" fill="#f8b8d4"/><circle cx="280" cy="678" r="1.3" fill="#f4d96b"/>
+        <circle cx="320" cy="666" r="1.4" fill="#e8a4c4"/><circle cx="365" cy="680" r="1.2" fill="#b58dc8"/>
+        <circle cx="240" cy="650" r="1.2" fill="#fff"/><circle cx="180" cy="640" r="1.3" fill="#f4d96b"/>
+        <circle cx="850" cy="660" r="1.5" fill="#f8b8d4"/><circle cx="890" cy="678" r="1.3" fill="#f4d96b"/>
+        <circle cx="925" cy="668" r="1.4" fill="#e8a4c4"/><circle cx="965" cy="680" r="1.2" fill="#b58dc8"/>
+        <circle cx="1000" cy="660" r="1.6" fill="#f8b8d4"/><circle cx="1040" cy="678" r="1.3" fill="#f4d96b"/>
+        <circle cx="1080" cy="668" r="1.4" fill="#e8a4c4"/><circle cx="1120" cy="652" r="1.2" fill="#fff"/>
+        <circle cx="930" cy="648" r="1.3" fill="#f4d96b"/>
+      </g>
+
+      <g transform="translate(600,660)">
+        <path d="M -260 -10 Q -230 -16 -180 -14 Q -100 -18 0 -16 Q 100 -18 180 -14 Q 230 -16 260 -10 Q 280 0 260 10 Q 230 14 180 12 Q 100 16 0 14 Q -100 16 -180 12 Q -230 14 -260 10 Q -280 0 -260 -10 Z" fill="#a0a8a0" opacity="0.45"/>
+        <ellipse cx="0" cy="0" rx="252" ry="14" fill="url(#lakeGrad)"/>
+        <ellipse cx="0" cy="0" rx="252" ry="14" fill="url(#lakeRipples)" opacity="0.7"/>
+        <ellipse cx="-80" cy="-4" rx="120" ry="3" fill="#ffffff" opacity="0.25" filter="url(#softBlur)"/>
+        <g transform="translate(140,0)">
+          <rect x="-2" y="-2" width="32" height="4" fill="#6b4a30"/>
+          <rect x="0" y="2" width="2" height="3" fill="#5a3a26"/>
+          <rect x="14" y="2" width="2" height="3" fill="#5a3a26"/>
+          <rect x="28" y="2" width="2" height="3" fill="#5a3a26"/>
+        </g>
+        <g transform="translate(40,-2)">
+          <path d="M -16 0 Q -14 -3 0 -3 Q 14 -3 16 0 Q 14 2 0 2 Q -14 2 -16 0 Z" fill="#c2402e"/>
+          <path d="M -14 -1 Q -12 -2 0 -2 Q 12 -2 14 -1" stroke="#1f2533" stroke-width="0.4" fill="none"/>
+          <ellipse cx="-22" cy="0" rx="6" ry="1" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="0.5"/>
+        </g>
+      </g>
+
+      <g fill="#1f4a2a">
+        <g transform="translate(20,620)"><path d="M -4 0 L 0 -14 L 4 0 Z M -3 -5 L 0 -19 L 3 -5 Z M -2 -10 L 0 -22 L 2 -10 Z"/></g>
+        <g transform="translate(45,625)"><path d="M -4 0 L 0 -16 L 4 0 Z M -3 -6 L 0 -22 L 3 -6 Z M -2 -12 L 0 -26 L 2 -12 Z"/></g>
+        <g transform="translate(75,628)"><path d="M -4 0 L 0 -13 L 4 0 Z M -3 -5 L 0 -18 L 3 -5 Z"/></g>
+        <g transform="translate(100,632) scale(0.9)"><path d="M -4 0 L 0 -15 L 4 0 Z M -3 -5 L 0 -20 L 3 -5 Z"/></g>
+        <g transform="translate(135,635) scale(0.85)"><path d="M -4 0 L 0 -14 L 4 0 Z M -3 -5 L 0 -19 L 3 -5 Z"/></g>
+        <g transform="translate(170,640) scale(0.8)"><path d="M -4 0 L 0 -13 L 4 0 Z M -3 -5 L 0 -18 L 3 -5 Z"/></g>
+        <g transform="translate(205,646) scale(0.75)"><path d="M -4 0 L 0 -12 L 4 0 Z M -3 -4 L 0 -16 L 3 -4 Z"/></g>
+        <g transform="translate(240,652) scale(0.7)"><path d="M -4 0 L 0 -11 L 4 0 Z M -3 -4 L 0 -15 L 3 -4 Z"/></g>
+        <g transform="translate(280,658) scale(0.65)"><path d="M -4 0 L 0 -10 L 4 0 Z M -3 -3 L 0 -14 L 3 -3 Z"/></g>
+        <g transform="translate(960,652) scale(0.7)"><path d="M -4 0 L 0 -11 L 4 0 Z M -3 -4 L 0 -15 L 3 -4 Z"/></g>
+        <g transform="translate(1000,648) scale(0.8)"><path d="M -4 0 L 0 -13 L 4 0 Z M -3 -5 L 0 -18 L 3 -5 Z"/></g>
+        <g transform="translate(1040,644) scale(0.85)"><path d="M -4 0 L 0 -14 L 4 0 Z M -3 -5 L 0 -19 L 3 -5 Z"/></g>
+        <g transform="translate(1080,638) scale(0.9)"><path d="M -4 0 L 0 -15 L 4 0 Z M -3 -5 L 0 -20 L 3 -5 Z"/></g>
+        <g transform="translate(1115,635)"><path d="M -4 0 L 0 -14 L 4 0 Z M -3 -5 L 0 -19 L 3 -5 Z"/></g>
+        <g transform="translate(1155,632)"><path d="M -4 0 L 0 -15 L 4 0 Z M -3 -5 L 0 -20 L 3 -5 Z"/></g>
+      </g>
+
+      <!-- Cabin left -->
+      <g transform="translate(72,635)">
+        <ellipse cx="14" cy="2" rx="22" ry="2.5" fill="rgba(0,0,0,0.15)"/>
+        <polygon points="-2,-12 30,-12 14,-24" fill="#5a3a26"/>
+        <rect x="-2" y="-12" width="32" height="16" fill="#8b5e3c"/>
+        <line x1="-2" y1="-8" x2="30" y2="-8" stroke="#6b4527" stroke-width="0.6"/>
+        <line x1="-2" y1="-4" x2="30" y2="-4" stroke="#6b4527" stroke-width="0.6"/>
+        <line x1="-2" y1="0" x2="30" y2="0" stroke="#6b4527" stroke-width="0.6"/>
+        <rect x="11" y="-7" width="6" height="11" fill="#3a2515"/>
+        <ellipse class="win-glow" cx="5.5" cy="-7" rx="6" ry="4" fill="#ffdf8a" filter="url(#softBlur)"/>
+        <ellipse class="win-glow" cx="22.5" cy="-7" rx="6" ry="4" fill="#ffdf8a" filter="url(#softBlur)"/>
+        <rect class="cabin-win" x="3" y="-9" width="5" height="4" fill="#dbe2ec" opacity="0.85"/>
+        <rect class="cabin-win" x="20" y="-9" width="5" height="4" fill="#dbe2ec" opacity="0.85"/>
+        <rect x="24" y="-22" width="3" height="6" fill="#3a2515"/>
+        <g opacity="0.45">
+          <ellipse cx="25" cy="-26" rx="2.5" ry="1.5" fill="#ffffff"/>
+          <ellipse cx="26" cy="-30" rx="3" ry="1.8" fill="#ffffff"/>
+          <ellipse cx="27" cy="-34" rx="3.5" ry="2" fill="#ffffff"/>
+        </g>
+      </g>
+
+      <!-- Campfire -->
+      <g transform="translate(150,648)">
+        <ellipse id="campGlow" cx="0" cy="-2" rx="12" ry="6" fill="#ff9a3a" opacity="0.3" filter="url(#softBlur)"/>
+        <ellipse cx="0" cy="2" rx="6" ry="1.5" fill="#3a2515" opacity="0.5"/>
+        <path class="flame" d="M -3 0 L 0 -7 L 3 0 Z" fill="#ff9a3a"/>
+        <path class="flame" d="M -2 0 L 0 -4.5 L 2 0 Z" fill="#ffd66b"/>
+      </g>
+
+      <!-- Finish arch -->
+      <g transform="translate(1100,612)">
+        <line x1="0" y1="0" x2="0" y2="-32" stroke="#3a2515" stroke-width="2.5"/>
+        <line x1="60" y1="0" x2="60" y2="-32" stroke="#3a2515" stroke-width="2.5"/>
+        <path d="M -2 -32 Q 30 -36 62 -32 L 62 -22 Q 30 -26 -2 -22 Z" fill="#f6b932"/>
+        <text x="30" y="-26" text-anchor="middle" font-family="Manrope" font-size="6" fill="#1a2333" font-weight="700" letter-spacing="0.5">FINISH</text>
+        <path d="M 0 -32 L 8 -28 L 16 -32 L 24 -28 L 32 -32 L 40 -28 L 48 -32 L 56 -28 L 60 -32" stroke="#c2402e" stroke-width="0.6" fill="none"/>
+        <path d="M 5 -32 L 8 -28 L 11 -32 Z" fill="#c2402e"/>
+        <path d="M 21 -32 L 24 -28 L 27 -32 Z" fill="#4dc8c8"/>
+        <path d="M 37 -32 L 40 -28 L 43 -32 Z" fill="#c2402e"/>
+        <path d="M 53 -32 L 56 -28 L 59 -32 Z" fill="#4dc8c8"/>
+      </g>
+
+      <!-- Cabin right -->
+      <g transform="translate(1030,632)">
+        <ellipse cx="14" cy="2" rx="20" ry="2.5" fill="rgba(0,0,0,0.15)"/>
+        <polygon points="-2,-10 26,-10 12,-21" fill="#5a3a26"/>
+        <rect x="-2" y="-10" width="28" height="14" fill="#8b5e3c"/>
+        <line x1="-2" y1="-7" x2="26" y2="-7" stroke="#6b4527" stroke-width="0.6"/>
+        <line x1="-2" y1="-4" x2="26" y2="-4" stroke="#6b4527" stroke-width="0.6"/>
+        <line x1="-2" y1="-1" x2="26" y2="-1" stroke="#6b4527" stroke-width="0.6"/>
+        <rect x="9" y="-6" width="6" height="10" fill="#3a2515"/>
+        <ellipse class="win-glow" cx="4" cy="-6" rx="5" ry="3.5" fill="#ffdf8a" filter="url(#softBlur)"/>
+        <ellipse class="win-glow" cx="20" cy="-6" rx="5" ry="3.5" fill="#ffdf8a" filter="url(#softBlur)"/>
+        <rect class="cabin-win" x="2" y="-8" width="4" height="3.5" fill="#dbe2ec" opacity="0.85"/>
+        <rect class="cabin-win" x="18" y="-8" width="4" height="3.5" fill="#dbe2ec" opacity="0.85"/>
+      </g>
+
+      <!-- Fireflies (night only) -->
+      <g id="firefliesGrp" opacity="0" style="transition: opacity 2s ease;" fill="#ffe88a">
+        <circle class="firefly" cx="320" cy="648" r="1.4" style="animation-delay:0s"/>
+        <circle class="firefly" cx="410" cy="668" r="1.2" style="animation-delay:.7s"/>
+        <circle class="firefly" cx="520" cy="642" r="1.5" style="animation-delay:1.4s"/>
+        <circle class="firefly" cx="700" cy="660" r="1.3" style="animation-delay:.3s"/>
+        <circle class="firefly" cx="800" cy="645" r="1.4" style="animation-delay:1.9s"/>
+        <circle class="firefly" cx="890" cy="670" r="1.2" style="animation-delay:1.1s"/>
+        <circle class="firefly" cx="230" cy="662" r="1.3" style="animation-delay:2.2s"/>
+        <circle class="firefly" cx="610" cy="676" r="1.2" style="animation-delay:1.6s"/>
+      </g>
+
+      <g font-family="Manrope, sans-serif" font-size="9" letter-spacing="3" font-weight="600">
+        <text x="72" y="686" text-anchor="middle" fill="#2a4030">BASE CAMP</text>
+      </g>
+    </g>
+
+    <!-- Valley mist (dawn mostly, faint at night) -->
+    <g id="mistGrp" opacity="0" style="transition: opacity 2.5s ease;">
+      <ellipse cx="300" cy="615" rx="260" ry="16" fill="#ffffff" filter="url(#heavyBlur)" opacity="0.55">
+        <animateTransform attributeName="transform" type="translate" values="0 0; 30 0; 0 0" dur="40s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="850" cy="625" rx="300" ry="18" fill="#ffffff" filter="url(#heavyBlur)" opacity="0.45">
+        <animateTransform attributeName="transform" type="translate" values="0 0; -36 0; 0 0" dur="52s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="580" cy="600" rx="200" ry="12" fill="#ffffff" filter="url(#heavyBlur)" opacity="0.35">
+        <animateTransform attributeName="transform" type="translate" values="0 0; 22 0; 0 0" dur="46s" repeatCount="indefinite"/>
+      </ellipse>
+    </g>
+
+    <!-- Night shade unifies the dark mood; sits under the trail so progress stays bright -->
+    <rect id="nightShade" x="-600" y="-1400" width="2400" height="2400" fill="#0a1228" opacity="0" style="transition: opacity 2s ease;"/>
+
+    <g id="layer-trail">
+      <path d="M 60 605 C 90 590, 112 578, 135 568 C 160 556, 186 540, 210 528 C 236 513, 262 497, 285 482 C 310 463, 333 442, 355 423 C 378 405, 400 388, 420 372 C 440 354, 458 337, 475 318 C 492 298, 507 277, 520 255 C 534 230, 548 205, 560 180 C 574 156, 586 132, 600 110 C 618 142, 640 178, 660 215 C 682 250, 703 285, 725 320 C 750 345, 776 369, 800 392 C 826 411, 851 429, 875 448 C 906 470, 936 492, 965 514 C 1020 545, 1085 580, 1140 605" stroke="rgba(20,30,50,0.18)" stroke-width="5" fill="none" stroke-linecap="round" transform="translate(0,2)"/>
+      <path id="trailPath" d="M 60 605 C 90 590, 112 578, 135 568 C 160 556, 186 540, 210 528 C 236 513, 262 497, 285 482 C 310 463, 333 442, 355 423 C 378 405, 400 388, 420 372 C 440 354, 458 337, 475 318 C 492 298, 507 277, 520 255 C 534 230, 548 205, 560 180 C 574 156, 586 132, 600 110 C 618 142, 640 178, 660 215 C 682 250, 703 285, 725 320 C 750 345, 776 369, 800 392 C 826 411, 851 429, 875 448 C 906 470, 936 492, 965 514 C 1020 545, 1085 580, 1140 605" stroke="url(#trailGrad)" stroke-width="2.6" stroke-dasharray="3 7" fill="none" stroke-linecap="round" opacity="0.9">
+        <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="14s" repeatCount="indefinite"/>
+      </path>
+      <!-- Gold progress trail: draws on load up to the current stage -->
+      <path id="goldTrail" d="M 60 605 C 90 590, 112 578, 135 568 C 160 556, 186 540, 210 528 C 236 513, 262 497, 285 482 C 310 463, 333 442, 355 423 C 378 405, 400 388, 420 372 C 440 354, 458 337, 475 318 C 492 298, 507 277, 520 255 C 534 230, 548 205, 560 180 C 574 156, 586 132, 600 110 C 618 142, 640 178, 660 215 C 682 250, 703 285, 725 320 C 750 345, 776 369, 800 392 C 826 411, 851 429, 875 448 C 906 470, 936 492, 965 514 C 1020 545, 1085 580, 1140 605" stroke="#f6b932" stroke-width="4" fill="none" stroke-linecap="round" pathLength="100" style="filter: drop-shadow(0 0 6px rgba(246,185,50,0.65));"/>
+    </g>
+  </svg>
+
+  <canvas class="snow" id="snowCanvas"></canvas>
+</div>
+
+<div class="stage-layer" id="stageLayer"></div>
+</div><!-- /world -->
+
+<header class="hud">
+  <div class="brand">
+    <div class="brand-mark"></div>
+    <div class="brand-text">
+      <div class="name">Fund One</div>
+      <div class="sub" id="greetSub">Your Journey</div>
+    </div>
+  </div>
+  <div class="hud-right">
+    <div class="card weather-card" id="weatherCard">
+      <div class="icon" id="weatherIcon">🌤</div>
+      <div>
+        <div class="temp" id="weatherTemp">—°</div>
+        <div class="desc" id="weatherDesc">Loading…</div>
+      </div>
+    </div>
+    <div class="card eta-card">
+      <div class="label" id="etaLabel">Est. Settlement</div>
+      <div class="date" id="etaDate">—</div>
+      <div class="countdown" id="etaCountdown">—</div>
+    </div>
+    <div class="card progress-card">
+      <div class="row">
+        <div class="label">Progress</div>
+        <div class="pct" id="progressPct">0%</div>
+      </div>
+      <div class="progress-bar"><div class="fill" id="progressFill"></div></div>
+      <div class="saved-line">⏱ <span id="savedHrs">0</span> hrs of legwork saved</div>
+    </div>
+  </div>
+</header>
+
+<aside class="side-card hurdles-card">
+  <div class="card-eyebrow">What's holding us up</div>
+  <h3>Active Hurdles</h3>
+  <ul class="hurdle-list" id="hurdleListDesktop"></ul>
+</aside>
+
+<aside class="side-card broker-card">
+  <div class="card-eyebrow">Your guide</div>
+  <div class="broker-head">
+    <div class="broker-avatar">JA</div>
+    <div class="broker-info">
+      <div class="name">Jordy Aylward</div>
+      <div class="role">Finance Specialist</div>
+      <div class="online-tag"><span class="ot-dot"></span><span class="ot-label">Online now</span></div>
+    </div>
+  </div>
+  <div class="broker-note" id="brokerNoteDesktop"></div>
+  <div class="broker-actions">
+    <a class="broker-btn primary" id="callBtn" href="#">📞 Call</a>
+    <a class="broker-btn" id="smsBtn" href="#">💬 Message</a>
+    <a class="broker-btn" id="mailBtn" href="#">✉ Email</a>
+  </div>
+</aside>
+
+<div class="updated-chip" id="updatedChip"></div>
+
+<div class="corner-cluster">
+  <button class="theme-btn" id="themeBtn" aria-label="Change the scenery">🎨</button>
+  <button class="cheer-chip" id="cheerBtn">👏 <span>Doing a good job?</span><span class="cheer-count" id="cheerCount">0</span></button>
+  <button class="fb-chip" id="fbOpen">💬 Feedback</button>
+</div>
+
+<div class="mobile-fabs">
+  <button class="fab fab-hurdles" id="fabHurdles">
+    <span class="fab-icon">⚠</span>
+    <span id="fabHurdLabel">Hurdles</span>
+    <span class="fab-badge" id="fabBadge">0</span>
+  </button>
+  <div class="fab-spacer"></div>
+  <button class="fab fab-mini" id="themeBtnM" aria-label="Change the scenery">🎨</button>
+  <button class="fab fab-mini" id="cheerBtnM" aria-label="Doing a good job?">👏<span class="fab-badge" id="cheerBadgeM" style="display:none">0</span></button>
+  <button class="fab fab-mini" id="fbOpenM" aria-label="Leave feedback">💬</button>
+  <button class="fab fab-broker" id="fabBroker">
+    <span class="fab-icon">J</span>
+    <span>Jordy</span>
+    <span class="fab-dot"></span>
+  </button>
+</div>
+
+<div class="swipe-hint" id="swipeHint">‹ Swipe to explore the trail ›</div>
+
+<div class="sheet-overlay" id="sheetOverlay"></div>
+
+<div class="bottom-sheet" id="hurdlesSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-eyebrow">What's holding us up</div>
+  <h3>Active Hurdles</h3>
+  <ul class="hurdle-list" id="hurdleListMobile"></ul>
+</div>
+
+<div class="bottom-sheet" id="brokerSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-eyebrow">Your guide</div>
+  <div class="broker-head">
+    <div class="broker-avatar">JA</div>
+    <div class="broker-info">
+      <div class="name">Jordy Aylward</div>
+      <div class="role">Finance Specialist · Fund One</div>
+      <div class="online-tag"><span class="ot-dot"></span><span class="ot-label">Online now</span></div>
+    </div>
+  </div>
+  <div class="broker-note" id="brokerNoteMobile"></div>
+  <div class="broker-actions">
+    <a class="broker-btn primary" id="callBtnM" href="#">📞 Call</a>
+    <a class="broker-btn" id="smsBtnM" href="#">💬 Message</a>
+    <a class="broker-btn" id="mailBtnM" href="#">✉ Email</a>
+  </div>
+</div>
+
+<div class="feedback-modal" id="fbModal">
+  <div class="sheet-handle"></div>
+  <div class="sheet-eyebrow">Straight to management</div>
+  <h3>How are we doing?</h3>
+  <div class="fb-disc">This goes directly to management, not to Jordy. He never sees it and it has zero effect on your file, so say it exactly how it is.</div>
+  <div class="fb-group-title g">Going well</div>
+  <div id="fbGood"></div>
+  <div class="fb-group-title b">Could be better</div>
+  <div id="fbBad"></div>
+  <button class="fb-shuffle" id="fbShuffle">↻ Show me different ones</button>
+  <textarea class="fb-text" id="fbText" placeholder="Or write it in your own words"></textarea>
+  <button class="fb-send" id="fbSend">Send to management</button>
+  <div class="fb-thanks" id="fbThanks">Thanks. Your email app is opening with it ready to send.</div>
+</div>
+
+<div class="stage-pill-wrap intro">
+  <div class="live-strip" id="liveStrip">
+    <div class="live-dot"></div>
+    <div class="live-text">
+      <div class="live-eyebrow">Jordy's on your file</div>
+      <div class="live-line"><span id="liveLine"></span><span class="live-caret">▌</span></div>
+    </div>
+  </div>
+  <div class="stage-pill" id="stagePill">
+    <div class="pill-progress"><div class="pp-fill" id="ppFill"></div></div>
+    <div class="pill-collapsed" id="pillCollapsed">
+      <div class="pill-status s-current" id="pillStatus">In Progress</div>
+      <div class="pill-title">
+        <div class="step" id="pillStep">Stage — of 10</div>
+        <div class="name" id="pillName">—</div>
+      </div>
+      <div class="pill-actions">
+        <button class="pill-return" id="pillReturn">↶ Current</button>
+        <button class="pill-nav-btn" id="prevBtn" aria-label="Previous">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="pill-nav-btn" id="nextBtn" aria-label="Next">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <button class="pill-toggle" id="pillToggle" aria-label="Toggle details">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="pill-expanded-content">
+      <div class="pec-grid" id="pecGrid">
+        <div class="pec-left">
+          <div class="pill-meta" id="pillMeta"></div>
+          <div class="pill-notice" id="pillNotice"></div>
+          <p class="pill-body" id="pillBody"></p>
+          <ul class="pill-checklist" id="pillChecklist"></ul>
+        </div>
+        <div class="pec-right">
+          <div class="pill-worklog" id="pillWorklogWrap">
+            <div class="wl-head">
+              <span class="wl-title">Behind the scenes</span>
+              <span class="wl-meta" id="wlMeta"></span>
+            </div>
+            <div class="wl-window"><div class="wl-mask"><ul class="wl-list" id="wlList"></ul></div></div>
+          </div>
+          <div class="pill-next" id="pillNextWrap"><button id="pillNextBtn"></button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   FUND ONE · CLIENT JOURNEY
+   Three ways to drive this page, pick one:
+   1. SHEET MODE (recommended): paste a published Google Sheet
+      CSV link into sheetUrl below. One row per client. Client
+      links look like  yoursite.netlify.app/?ref=AL-24819  and
+      never change. You update the sheet, their page updates.
+   2. URL MODE: leave sheetUrl blank and put everything in the
+      link:  ?name=Sarah&ref=AL-24819&stage=5&date=2026-05-16
+   3. EDIT MODE: just change the CONFIG values below and host
+      one file per client.
+   ============================================================ */
+const CONFIG = {
+  /* CONTROL PANEL: publish your Google Sheet to the web as CSV and paste that
+     link here. The page then pulls each client's row by ?ref= in the URL and
+     your sheet becomes the one place you update progress. Blank = off. */
+  sheetUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8cPm77VNxa0YRmfXlhyw6Rv6lFxz8nG3GzFElNjen63QuTAe9ozciRRQhl7iE8lY_fjUjiBDpitJ3/pub?gid=0&single=true&output=csv",
+
+  clientName: "Sarah",                 // first name only
+  fileRef: "AL-24819",
+  currentStage: 5,                     // 1-16. Set 16 = settled (fireworks on)
+  settlementDate: "2026-06-19",        // YYYY-MM-DD, drives countdown
+  lastUpdated: "Today, 9:30am",        // shown bottom-left as a trust signal
+  brokerPhone: "+61480801669",         // 0480 801 669
+  brokerEmail: "jordon.aylward@ausloans.com.au",
+  feedbackEmail: "jordon.aylward@ausloans.com.au",                   // REQUIRED for the feedback button to appear. Use a management address, not your own.
+  theme: "classic",                    // classic, sunset, lagoon, candy
+  brokerNote: "",                      // leave blank for an automatic note matched to the current stage
+  working: true,                       // true = show the live "Jordy's on your file" activity
+  statusNow: "",                       // optional: your actual current action, e.g. "On the phone with the lender now"
+  hurdles: [
+    { title: "Assessor follow up", note: "I'm checking in daily so it keeps moving", owner: "us", icon: "☎" }
+  ]
+};
+const MAX_STAGE = 16;
+
+/* URL overrides */
+(function applyUrlOverrides() {
+  const p = new URLSearchParams(location.search);
+  if (p.get('name'))  CONFIG.clientName = p.get('name').slice(0, 30);
+  if (p.get('ref'))   CONFIG.fileRef = p.get('ref').slice(0, 20);
+  if (p.get('date'))  CONFIG.settlementDate = p.get('date');
+  if (p.get('stage')) {
+    const s = parseInt(p.get('stage'), 10);
+    if (s >= 1 && s <= MAX_STAGE) CONFIG.currentStage = s;
+  }
+  CONFIG.celebrate = p.get('celebrate') === '1';
+  if (p.has('working')) CONFIG.working = p.get('working') === '1';
+  if (p.get('now')) CONFIG.statusNow = p.get('now').slice(0, 90);
+  if (p.get('theme')) CONFIG.theme = p.get('theme');
+})();
+
+/* ===== Google Sheet control panel ===== */
+function parseCSV(text) {
+  const rows = []; let row = [], cell = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; }
+      else cell += c;
+    } else if (c === '"') q = true;
+    else if (c === ',') { row.push(cell); cell = ''; }
+    else if (c === '\n' || c === '\r') {
+      if (c === '\r' && text[i + 1] === '\n') i++;
+      row.push(cell); cell = '';
+      if (row.length > 1 || row[0] !== '') rows.push(row);
+      row = [];
+    } else cell += c;
+  }
+  if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+  return rows;
+}
+function normDate(v) {
+  v = (v || '').trim().split(' ')[0];
+  if (/^\d{4}-\d{2}-\d{2}/.test(v)) return v.slice(0, 10);
+  const m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);  // Sheets often outputs DD/MM/YYYY
+  if (m) return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+  return v;
+}
+async function loadFromSheet() {
+  if (!CONFIG.sheetUrl) return;
+  const ref = (new URLSearchParams(location.search).get('ref') || CONFIG.fileRef || '').trim().toLowerCase();
+  if (!ref) return;
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 3500);
+    const res = await fetch(CONFIG.sheetUrl, { cache: 'no-store', signal: ctrl.signal });
+    clearTimeout(timer);
+    if (!res.ok) return;
+    const rows = parseCSV(await res.text());
+    if (rows.length < 2) return;
+    const head = rows[0].map(h => h.trim().toLowerCase().replace(/\s+/g, '_'));
+    const col = name => head.indexOf(name);
+    const match = rows.slice(1).find(r => (r[col('ref')] || '').trim().toLowerCase() === ref);
+    if (!match) return;
+    const get = name => { const i = col(name); return i === -1 ? '' : (match[i] || '').trim(); };
+    if (get('name')) CONFIG.clientName = get('name').slice(0, 30);
+    if (get('ref'))  CONFIG.fileRef = get('ref').slice(0, 20);
+    const st = parseInt(get('stage'), 10);
+    if (st >= 1 && st <= MAX_STAGE) CONFIG.currentStage = st;
+    if (get('settlement_date')) CONFIG.settlementDate = normDate(get('settlement_date'));
+    if (get('last_updated')) CONFIG.lastUpdated = get('last_updated');
+    if (get('broker_note')) CONFIG.brokerNote = get('broker_note');
+    if (col('hurdle1_title') !== -1) {
+      const icons = { you: '→', us: '☎', dealer: '⏳' };
+      const hs = [];
+      for (let n = 1; n <= 5; n++) {
+        const t = get(`hurdle${n}_title`);
+        if (!t) continue;
+        let ow = (get(`hurdle${n}_owner`) || 'us').toLowerCase();
+        if (!['you', 'us', 'dealer'].includes(ow)) ow = 'us';
+        hs.push({ title: t, note: get(`hurdle${n}_note`), owner: ow, icon: icons[ow] });
+      }
+      CONFIG.hurdles = hs;
+    }
+    if (['1', 'y', 'yes', 'true'].includes(get('celebrate').toLowerCase())) CONFIG.celebrate = true;
+    if (col('working') !== -1) CONFIG.working = ['1', 'y', 'yes', 'true'].includes(get('working').toLowerCase());
+    if (get('status_now')) CONFIG.statusNow = get('status_now').slice(0, 90);
+    if (get('theme')) CONFIG.theme = get('theme');
+  } catch (err) {
+    console.warn('Journey: sheet not loaded, using built-in values.', err);
+  }
+}
+loadFromSheet().then(initJourney);
+
+function initJourney() {
+
+const CURRENT_ID = CONFIG.currentStage;
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ===== Stage content: the real Fund One journey, 16 camps ===== */
+const stages = [
+  { id:1,  svgX:60,   svgY:605, title:"Enquiry Received",
+    body:"Your enquiry just landed and the climb officially starts here. I open your file, take a proper first look and get the wheels turning the same day.",
+    checklist:[{text:"Enquiry received", done:true},{text:"File opened", done:true},{text:"First review done", done:true}]},
+  { id:2,  svgX:135,  svgY:568, title:"Assessment Call",
+    body:"We jump on a call and get the full picture: what you're after, your budget and your timing. I ask the questions a lender will ask so nothing surprises us later.",
+    checklist:[{text:"Call completed", done:true},{text:"Goals and budget confirmed", done:true},{text:"Game plan set", done:true}]},
+  { id:3,  svgX:210,  svgY:528, title:"Documents Complete",
+    body:"Every document is in: ID, payslips, bank statements, the lot. I check it all the way an assessor will before it goes anywhere.",
+    checklist:[{text:"Documents requested", done:true},{text:"Everything received", done:true},{text:"Verified and cross checked", done:true}]},
+  { id:4,  svgX:285,  svgY:482, title:"Application Submitted",
+    body:"Your application is packaged, polished and lodged. The file lands with the lender that gives you the best shot at a first time yes.",
+    checklist:[{text:"Application packaged", done:true},{text:"Lodged with the lender", done:true},{text:"Reference number received", done:true}]},
+  { id:5,  svgX:355,  svgY:423, title:"Lender Reviewing File",
+    body:"The lender's assessors have your file and they're working through it. My job here is to keep it moving and jump on anything they need same day.",
+    checklist:[{text:"File with the assessor", done:true},{text:"Assessment underway", active:true},{text:"Outcome due shortly", done:false}]},
+  { id:6,  svgX:420,  svgY:372, title:"Lender Questions",
+    body:"The lender's come back with a couple of questions before pre approval. Completely normal, and I handle the answers so it keeps moving.",
+    checklist:[{text:"Questions received", done:true},{text:"Answers prepared", active:true},{text:"Responses lodged", done:false}]},
+  { id:7,  svgX:475,  svgY:318, title:"Pre-Approved",
+    body:"Pre approved on a full assessment. You now know exactly what you can spend, which makes car shopping a whole lot more fun.",
+    checklist:[{text:"Pre approval issued", done:true},{text:"Budget confirmed", done:true},{text:"Car hunt unlocked", done:true}]},
+  { id:8,  svgX:520,  svgY:255, title:"Find Your Car",
+    body:"Time to find the car. Use 1800 Drive to hunt on your behalf or find one yourself, and I'll sense check anything before you commit.",
+    checklist:[{text:"1800 Drive briefed", done:true},{text:"Options being sourced", active:true},{text:"Car chosen", done:false}]},
+  { id:9,  svgX:560,  svgY:180, title:"Vehicle Checks",
+    body:"The lender's checking the car itself: ownership, money owing, security checks. It protects you as much as them.",
+    checklist:[{text:"Car details lodged", done:true},{text:"Background checks running", active:true},{text:"All clear", done:false}]},
+  { id:10, svgX:600,  svgY:110, title:"Full Approval",
+    body:"The summit. Full approval, locked and confirmed in writing. The money side is done, now we bring it home.",
+    checklist:[{text:"Final review", active:true},{text:"Approval issued", done:false},{text:"Confirmed in writing", done:false}]},
+  { id:11, svgX:660,  svgY:215, title:"Insurance & Warranty Quotes",
+    body:"I quote your insurance and warranty options so you can compare real numbers side by side instead of guessing.",
+    checklist:[{text:"Insurance quoted", active:true},{text:"Warranty quoted", active:true},{text:"Options sent to you", done:false}]},
+  { id:12, svgX:725,  svgY:320, title:"Sign Off",
+    body:"We go through the final pack together and you sign off on the deal. Nothing gets signed that you don't fully understand.",
+    checklist:[{text:"Pack prepared", active:true},{text:"Walkthrough done", done:false},{text:"Signed off", done:false}]},
+  { id:13, svgX:800,  svgY:392, title:"Contracts",
+    body:"Contracts are prepared and I read every line before you do. You'll get a plain english summary along with the documents.",
+    checklist:[{text:"Contracts drafted", active:true},{text:"Reviewed line by line", done:false},{text:"Sent for signing", done:false}]},
+  { id:14, svgX:875,  svgY:448, title:"Insurance & Your Review",
+    body:"Pick the insurance that suits you and, if I've earned it, leave a quick review. Use code JORD10 for money off your next application.",
+    checklist:[{text:"Your insurance picked", active:true},{text:"Quick review left, JORD10 code yours", done:false},{text:"Policy confirmed for settlement", done:false}]},
+  { id:15, svgX:965,  svgY:514, title:"ID Check & Welcome Call",
+    body:"A quick ID check from the lender and a short welcome call to introduce themselves. Five minutes, then we're cleared for settlement.",
+    checklist:[{text:"ID check booked", active:true},{text:"Check completed", done:false},{text:"Welcome call done", done:false}]},
+  { id:16, svgX:1140, svgY:605, title:"Settlement",
+    body:"Settlement day. The remittance goes to the dealership, funds land, and the keys are yours. I confirm everything and send your records.",
+    checklist:[{text:"Settlement booked", active:true},{text:"Funds transferred", done:false},{text:"Keys in hand", done:false}]}
+];
+
+const FINISH_ID = stages.length;
+const SETTLED = CURRENT_ID === stages.length;
+const WORKING = CONFIG.working && !SETTLED;
+
+stages.forEach(s => {
+  if (s.id < CURRENT_ID) { s.status = 'done'; s.meta = 'Completed'; }
+  else if (s.id === CURRENT_ID) { s.status = 'current'; s.meta = SETTLED ? 'Complete' : 'In progress now'; }
+  else { s.status = 'future'; s.meta = 'Coming up'; }
+  if (s.status === 'done') s.checklist.forEach(c => { c.done = true; c.active = false; });
+  if (s.status === 'future') s.checklist.forEach(c => { c.done = false; c.active = false; });
+});
+if (SETTLED) stages.forEach(s => { if (s.id < stages.length) { s.status='done'; s.meta='Completed'; } s.checklist.forEach(c=>{c.done=true;c.active=false;}); });
+let selectedId = CURRENT_ID;
+
+/* ===== Work log: what going direct would cost them, and the knockback prevention they never see ===== */
+const WORKLOG = {
+  1: [
+    {t:"Reviewed your enquiry the moment it landed", m:3},
+    {t:"Researched which lenders actually suit your situation", m:45},
+    {t:"Worked out your likely borrowing power before anyone touches your credit file", m:15},
+    {t:"Mapped the best path for your file", m:10},
+    {t:"Set up your secure document links", m:3}
+  ],
+  2: [
+    {t:"Prepared your file before we spoke", m:10},
+    {t:"Ran through your goals, budget and timing", m:15},
+    {t:"Asked the questions lenders will ask, before they do", m:10},
+    {t:"Flagged anything that could get questioned later", m:10},
+    {t:"Planned the order we attack this in", m:5}
+  ],
+  3: [
+    {t:"Read your bank statements the way an assessor will", m:40},
+    {t:"Spotted and sorted anything a lender would question", m:15},
+    {t:"Checked your payslips match your stated income exactly", m:8},
+    {t:"Made sure your payslips are originals, not screenshots that get rejected", m:3},
+    {t:"Verified your ID meets requirements", m:3},
+    {t:"Cross checked every figure against the application", m:10},
+    {t:"Ordered the documents so nothing gets asked for twice", m:5},
+    {t:"Chased the gaps so the file never stalls", m:10}
+  ],
+  4: [
+    {t:"Compared your file against dozens of lender policies", m:60},
+    {t:"Ruled out the ones that would knock you back", m:15},
+    {t:"Avoided the scattergun applications that wreck credit scores", m:10},
+    {t:"Picked the option with the best shot of a first time yes", m:10},
+    {t:"Wrote the notes that answer assessor questions before they're asked", m:25},
+    {t:"Fixed the little things that get applications knocked back", m:15},
+    {t:"Packaged everything in the exact order they want it", m:10},
+    {t:"Lodged the application and confirmed it landed", m:8}
+  ],
+  5: [
+    {t:"Tracked your file through the assessment queue", m:10},
+    {t:"Checked in with the assessor so it keeps moving", m:10},
+    {t:"Kept your documents ready for instant answers", m:5},
+    {t:"Watched for anything that needs a fast response", m:10}
+  ],
+  6: [
+    {t:"Translated the lender's questions into plain english", m:8},
+    {t:"Pulled together the answers and the evidence", m:15},
+    {t:"Responded same day so your file stays on top of the pile", m:10},
+    {t:"Pushed back where a question was already answered", m:8}
+  ],
+  7: [
+    {t:"Confirmed your pre approval in writing", m:5},
+    {t:"Checked the amount, rate and conditions line by line", m:10},
+    {t:"Worked out your real world car budget from it", m:10},
+    {t:"Set the game plan for the car hunt", m:5}
+  ],
+  8: [
+    {t:"Connected you with 1800 Drive to hunt on your behalf", m:5},
+    {t:"Sense checked listings against your approval", m:15},
+    {t:"Checked asking prices against the market", m:10},
+    {t:"Made sure the car fits the lender's rules before you fall in love with it", m:10}
+  ],
+  9: [
+    {t:"Sent the car details through for background checks", m:5},
+    {t:"Tracked the ownership and security checks", m:10},
+    {t:"Confirmed there's no money owing on the car", m:5},
+    {t:"Verified the car details match the paperwork", m:8}
+  ],
+  10: [
+    {t:"Pushed your file for final sign off", m:10},
+    {t:"Confirmed every condition was satisfied", m:8},
+    {t:"Checked the final numbers match what we agreed", m:5},
+    {t:"Locked the approval in writing", m:3}
+  ],
+  11: [
+    {t:"Quoted your comprehensive insurance options", m:15},
+    {t:"Priced the warranty cover that suits the car", m:10},
+    {t:"Compared the covers side by side in plain english", m:10},
+    {t:"Checked the cover meets the approval requirements", m:8}
+  ],
+  12: [
+    {t:"Prepared your sign off pack", m:10},
+    {t:"Checked every figure one last time", m:8},
+    {t:"Walked you through anything unclear", m:10}
+  ],
+  13: [
+    {t:"Read your contract line by line before you see it", m:20},
+    {t:"Checked every figure against the approval", m:10},
+    {t:"Wrote you a plain english summary of what you're signing", m:10},
+    {t:"Set up the repayment schedule and direct debit", m:5}
+  ],
+  14: [
+    {t:"Locked in your chosen insurance", m:8},
+    {t:"Confirmed the policy covers you from settlement day one", m:5},
+    {t:"Set up your review link and JORD10 code", m:3}
+  ],
+  15: [
+    {t:"Booked your ID check with the lender", m:5},
+    {t:"Prepped you on what the welcome call covers", m:5},
+    {t:"Made sure the check went through clean", m:5}
+  ],
+  16: [
+    {t:"Coordinated settlement between every party", m:15},
+    {t:"Confirmed the payout figures to the cent", m:5},
+    {t:"Sent the remittance to the dealership", m:5},
+    {t:"Tracked the transfer until it landed", m:5},
+    {t:"Confirmed handover and your first repayment date", m:5}
+  ]
+};
+const SAVED_MIN = Object.entries(WORKLOG).reduce((tot, [id, arr]) =>
+  tot + (Number(id) <= CURRENT_ID ? arr.reduce((a, x) => a + x.m, 0) : 0), 0);
+function fmtMin(m) { return m >= 60 ? (m % 60 === 0 ? (m / 60) : (m / 60).toFixed(1)) + 'h' : m + 'm'; }
+
+/* ===== Helpers ===== */
+const $ = id => document.getElementById(id);
+function esc(t){ const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+
+/* ===== Intro personalisation ===== */
+$('introRef').textContent = CONFIG.fileRef;
+$('introTitle').textContent = CONFIG.clientName ? `${CONFIG.clientName}'s Journey` : 'Your Journey';
+
+function greetingWord() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+$('greetSub').textContent = CONFIG.clientName
+  ? `${greetingWord()}, ${CONFIG.clientName} · File ${CONFIG.fileRef}`
+  : `File ${CONFIG.fileRef} · Your Journey`;
+
+/* ===== Settlement date + countdown ===== */
+(function renderEta(){
+  const d = new Date(CONFIG.settlementDate + 'T00:00:00');
+  if (isNaN(d)) {
+    $('etaDate').textContent = 'To be confirmed';
+    $('etaCountdown').textContent = `We'll lock a date in soon`;
+    return;
+  }
+  $('etaDate').textContent = d.toLocaleDateString('en-AU', { weekday:'short', day:'numeric', month:'short' });
+  if (SETTLED) {
+    $('etaLabel').textContent = 'Settlement';
+    $('etaCountdown').textContent = 'Settled 🎉';
+    return;
+  }
+  const today = new Date(); today.setHours(0,0,0,0);
+  const days = Math.round((d - today) / 86400000);
+  $('etaCountdown').textContent =
+    days > 1 ? `${days} days to go` :
+    days === 1 ? 'Tomorrow' :
+    days === 0 ? 'Settlement day' : 'New date being confirmed';
+})();
+
+/* ===== Updated chip ===== */
+$('updatedChip').textContent = `Updated ${CONFIG.lastUpdated}`;
+
+/* ===== Hurdles render (single source) ===== */
+function renderHurdles(listEl){
+  listEl.innerHTML = '';
+  CONFIG.hurdles.forEach(h => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <div class="hurdle-icon o-${esc(h.owner)}">${esc(h.icon)}</div>
+      <div class="hurdle-text"><strong>${esc(h.title)}</strong><span>${esc(h.note)}</span></div>`;
+    listEl.appendChild(li);
+  });
+}
+renderHurdles($('hurdleListDesktop'));
+renderHurdles($('hurdleListMobile'));
+$('fabBadge').textContent = CONFIG.hurdles.length;
+if (CONFIG.hurdles.length === 0) {
+  $('fabBadge').style.display = 'none';
+  $('fabHurdLabel').textContent = 'All clear';
+  $('fabHurdles').querySelector('.fab-icon').textContent = '\u2713';
+  document.querySelector('.hurdles-card').style.display = 'none';
+  $('hurdleListMobile').innerHTML = '<li class="hurdle-empty">Nothing outstanding right now. The file is moving on Jordy\'s side.</li>';
+}
+
+let _note = (CONFIG.brokerNote || '').trim();
+if (!_note) {
+  const _curT = stages.find(s => s.id === CURRENT_ID).title.toLowerCase();
+  const joinAnd = arr => arr.length <= 1 ? (arr[0] || '') : arr.slice(0, -1).join(', ') + ' and ' + arr[arr.length - 1];
+  const youT = CONFIG.hurdles.filter(h => h.owner === 'you').map(h => h.title.toLowerCase());
+  const otherT = CONFIG.hurdles.filter(h => h.owner !== 'you').map(h => h.title.toLowerCase());
+  if (SETTLED) {
+    _note = "Huge congrats, the keys are yours. I'm only a message away whenever you need me next.";
+  } else if (youT.length) {
+    _note = `All I need from you is your ${joinAnd(youT)}. The rest is on me, just get that across when you can.`;
+  } else if (otherT.length) {
+    _note = `Nothing needed from you right now. I'm on the ${joinAnd(otherT)} and I'll keep you posted.`;
+  } else {
+    _note = `Nothing outstanding from anyone right now. Your ${_curT} is moving and I'll sing out the second anything changes.`;
+  }
+}
+$('brokerNoteDesktop').textContent = `"${_note}"`;
+$('brokerNoteMobile').textContent = `"${_note}"`;
+document.querySelectorAll('.online-tag').forEach(t => {
+  if (!(CONFIG.working && !SETTLED)) {
+    t.classList.add('off');
+    t.querySelector('.ot-label').textContent = 'On call for you';
+  }
+});
+
+/* ===== Build stage dots + characters ===== */
+const stageLayer = $('stageLayer');
+stages.forEach((s, i) => {
+  const node = document.createElement('div');
+  node.className = `stage ${s.status}`;
+  node.style.animationDelay = (reduceMotion ? 0 : 2300 + i * 90) + 'ms';
+  node.dataset.tier = String(i % 2);
+  if (i === 0) node.dataset.edge = 'start';
+  if (i === stages.length - 1) node.dataset.edge = 'end';
+  const numTxt = s.status === 'done' ? '✓' : s.status === 'current' ? 'NOW' : String(i + 1).padStart(2, '0');
+  node.innerHTML = `<div class="stage-dot"></div><div class="stage-label"><span class="num">${numTxt}</span>${s.title}</div>`;
+  node.addEventListener('click', e => { e.stopPropagation(); if (panMoved > 10) return; selectStage(s.id); openPill(); });
+  stageLayer.appendChild(node);
+  s._node = node;
+});
+
+const confetti = document.createElement('div');
+confetti.className = 'confetti-burst';
+confetti.innerHTML = `<div class="confetti"></div>`.repeat(8);
+stageLayer.appendChild(confetti);
+
+const trekker = document.createElement('div');
+trekker.className = 'trekker';
+trekker.innerHTML = `
+  <div class="work-bubble" id="workBubble"><div class="wb-dot"></div><div class="wb-dot"></div><div class="wb-dot"></div></div>
+  <div class="trekker-tag">YOU</div>
+  <svg class="trekker-svg" viewBox="0 0 32 38" xmlns="http://www.w3.org/2000/svg">
+    <line x1="12" y1="26" x2="9" y2="36" stroke="#1a2333" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="16" y1="26" x2="19" y2="36" stroke="#1a2333" stroke-width="2.5" stroke-linecap="round"/>
+    <rect x="6" y="13" width="5" height="13" rx="1.5" fill="#3a6a44"/>
+    <rect x="6" y="15" width="5" height="1" fill="#244a30"/>
+    <path d="M 9 12 Q 9 22 11 26 L 19 26 Q 21 22 21 12 Q 21 9 15 9 Q 9 9 9 12 Z" fill="#c2402e"/>
+    <line x1="19" y1="14" x2="23" y2="11" stroke="#c2402e" stroke-width="2.6" stroke-linecap="round"/>
+    <line x1="23" y1="9" x2="26" y2="32" stroke="#6b4a30" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="11" y1="14" x2="8" y2="20" stroke="#c2402e" stroke-width="2.6" stroke-linecap="round"/>
+    <circle cx="15" cy="6" r="3.5" fill="#f4d4a8"/>
+    <path d="M 11.5 5 Q 15 1.5 18.5 5 L 19 6 L 11 6 Z" fill="#1f3a66"/>
+    <ellipse cx="18.5" cy="6" rx="1.5" ry="0.7" fill="#1f3a66"/>
+  </svg>`;
+stageLayer.appendChild(trekker);
+if (SETTLED) trekker.style.display = 'none';
+
+const cheerBroker = document.createElement('div');
+cheerBroker.className = 'cheer-broker';
+cheerBroker.innerHTML = `
+  <div class="cheer-broker-tag">JORDY</div>
+  <svg class="cheer-broker-svg" viewBox="0 0 50 60" xmlns="http://www.w3.org/2000/svg">
+    <line x1="12" y1="34" x2="12" y2="4" stroke="#2a2a2a" stroke-width="1.6"/>
+    <g class="flag">
+      <path d="M 12 4 L 26 7 L 12 10 Z" fill="#f6b932"/>
+      <text x="15" y="9" font-family="Manrope" font-size="3.6" fill="#1a2333" font-weight="800">F1</text>
+    </g>
+    <line x1="22" y1="32" x2="12" y2="8" stroke="#f4d4a8" stroke-width="2.8" stroke-linecap="round"/>
+    <g class="arm-right">
+      <line x1="28" y1="32" x2="38" y2="14" stroke="#1f3a66" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="38" cy="14" r="2.2" fill="#f4d4a8"/>
+    </g>
+    <path d="M 19 30 Q 19 42 21 46 L 29 46 Q 31 42 31 30 Q 31 26 25 26 Q 19 26 19 30 Z" fill="#1f3a66"/>
+    <circle cx="25" cy="22" r="4" fill="#f4d4a8"/>
+    <path d="M 23 23 Q 25 24.5 27 23" stroke="#1a2333" stroke-width="0.5" fill="none" stroke-linecap="round"/>
+    <path d="M 20.5 21 Q 25 16 29.5 21 L 30 23 L 20 23 Z" fill="#c2402e"/>
+    <circle cx="25" cy="17" r="1.4" fill="#f6b932"/>
+    <line x1="23" y1="46" x2="20" y2="58" stroke="#1a2333" stroke-width="3" stroke-linecap="round"/>
+    <line x1="27" y1="46" x2="30" y2="58" stroke="#1a2333" stroke-width="3" stroke-linecap="round"/>
+  </svg>`;
+stageLayer.appendChild(cheerBroker);
+
+/* ===== Positioning: bottom-anchored camera that fits every screen ===== */
+/* The valley and all 16 camps stay pinned; only spare sky crops or extends. */
+let CAM = { s: 1, x0: 0, anchorY: 0, pannable: false, minX: 0, maxX: 0 };
+let camX = null; // camera left edge in scene units; null means centre on the current stage
+function fitScene() {
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const phone = vw < 760 && vh > vw;         // portrait phones get the zoomed, swipeable camera
+  const pad = vw < 760 ? 150 : 0;            // keep the valley clear of the stage card on phones
+  const anchorY = vh - pad;
+  let s;
+  if (phone) {
+    s = Math.min((anchorY - 64) / 640, vw / 470); // zoom to a readable window, ~6 camps wide
+  } else {
+    s = Math.min(vw / 1200, anchorY / 640);       // 640 = flag tip to valley floor, must always fit
+  }
+  const visW = vw / s;
+  const visH = vh / s;
+  const pannable = visW < 1190;
+  const y0 = 700 + pad / s - visH;
+  const svg = document.getElementById('sceneSvg');
+  if (pannable) {
+    CAM.minX = -30;
+    CAM.maxX = 1230 - visW;
+    if (camX === null) {
+      const cur = stages.find(st => st.id === CURRENT_ID) || stages[0];
+      camX = cur.svgX - visW / 2;
+    }
+    /* Paint the whole pannable strip once; swiping is just a GPU translate,
+       so no SVG repaints, no filter recomputes, no layout per frame. */
+    svg.setAttribute('viewBox', `-30 ${y0} 1260 ${visH}`);
+    svg.style.width = (1260 * s) + 'px';
+    svg.style.height = vh + 'px';
+    svg.style.maxWidth = 'none';
+    svg.style.willChange = 'transform';
+    stageLayer.style.willChange = 'transform';
+    CAM.s = s; CAM.x0 = -30; CAM.anchorY = anchorY; CAM.pannable = true;
+    applyPan();
+  } else {
+    const x0 = (1200 - visW) / 2;
+    svg.setAttribute('viewBox', `${x0} ${y0} ${visW} ${visH}`);
+    svg.style.width = ''; svg.style.height = ''; svg.style.maxWidth = '';
+    svg.style.transform = ''; svg.style.willChange = '';
+    stageLayer.style.transform = ''; stageLayer.style.willChange = '';
+    CAM.s = s; CAM.x0 = x0; CAM.anchorY = anchorY; CAM.pannable = false;
+  }
+  document.body.classList.toggle('pannable', pannable);
+}
+function applyPan() {
+  camX = Math.max(CAM.minX, Math.min(CAM.maxX, camX));
+  const t = `translate3d(${-(camX + 30) * CAM.s}px, 0, 0)`;
+  document.getElementById('sceneSvg').style.transform = t;
+  stageLayer.style.transform = t;
+}
+function project(svgX, svgY) {
+  return { x: (svgX - CAM.x0) * CAM.s, y: CAM.anchorY - (700 - svgY) * CAM.s };
+}
+function positionStages() {
+  stages.forEach(s => {
+    const p = project(s.svgX, s.svgY);
+    s._node.style.left = p.x + 'px';
+    s._node.style.top  = p.y + 'px';
+  });
+  if (!SETTLED) {
+    const cur = stages.find(s => s.id === CURRENT_ID);
+    const p = project(cur.svgX, cur.svgY);
+    trekker.style.left = p.x + 'px';
+    trekker.style.top  = p.y + 'px';
+  }
+  const finish = stages.find(s => s.id === FINISH_ID);
+  const pf = project(finish.svgX - 35, finish.svgY - 4);
+  cheerBroker.style.left = pf.x + 'px';
+  cheerBroker.style.top  = pf.y + 'px';
+  confetti.style.left = pf.x + 'px';
+  confetti.style.top  = pf.y + 'px';
+}
+function relayout() { fitScene(); positionStages(); }
+window.addEventListener('resize', relayout);
+if (window.visualViewport) window.visualViewport.addEventListener('resize', relayout);
+relayout();
+
+/* ===== Swipe-to-explore camera (phones) ===== */
+let panAnim = null, panMoved = 0;
+function panTo(targetX) {
+  if (!CAM.pannable) return;
+  const start = camX;
+  const end = Math.max(CAM.minX, Math.min(CAM.maxX, targetX));
+  if (panAnim) cancelAnimationFrame(panAnim);
+  const t0 = performance.now();
+  const dur = reduceMotion ? 0 : 380;
+  function step(t) {
+    const k = dur ? Math.min(1, (t - t0) / dur) : 1;
+    const e = 1 - Math.pow(1 - k, 3);
+    camX = start + (end - start) * e;
+    applyPan();
+    if (k < 1) panAnim = requestAnimationFrame(step);
+  }
+  panAnim = requestAnimationFrame(step);
+}
+(function panEngine() {
+  const world = document.getElementById('world');
+  let down = false, lastX = 0, raf = null;
+  world.addEventListener('pointerdown', e => {
+    if (!CAM.pannable) return;
+    down = true; lastX = e.clientX; panMoved = 0;
+    if (panAnim) cancelAnimationFrame(panAnim);
+  });
+  window.addEventListener('pointermove', e => {
+    if (!down) return;
+    const dx = e.clientX - lastX; lastX = e.clientX;
+    panMoved += Math.abs(dx);
+    camX -= dx / CAM.s;
+    if (!raf) raf = requestAnimationFrame(() => { raf = null; applyPan(); });
+  });
+  const lift = () => {
+    if (down && panMoved > 28) dismissSwipeHint();
+    down = false;
+  };
+  window.addEventListener('pointerup', lift);
+  window.addEventListener('pointercancel', lift);
+})();
+let hintGone = false;
+function dismissSwipeHint() {
+  if (hintGone) return;
+  hintGone = true;
+  const h = document.getElementById('swipeHint');
+  if (h) h.classList.add('gone');
+}
+setTimeout(dismissSwipeHint, 12000);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(positionStages);
+
+/* ===== Gold progress trail ===== */
+(function setupGoldTrail(){
+  const base = $('trailPath');
+  const gold = $('goldTrail');
+  const total = base.getTotalLength();
+  const cur = stages.find(s => s.id === CURRENT_ID);
+  // find fraction of length closest to current stage point
+  let bestFrac = 0, bestDist = Infinity;
+  const samples = 320;
+  for (let i = 0; i <= samples; i++) {
+    const pt = base.getPointAtLength(total * i / samples);
+    const d = (pt.x - cur.svgX) ** 2 + (pt.y - cur.svgY) ** 2;
+    if (d < bestDist) { bestDist = d; bestFrac = i / samples; }
+  }
+  const pct = SETTLED ? 100 : bestFrac * 100;
+  gold.style.strokeDasharray = `${pct} 100`;
+  gold.style.strokeDashoffset = pct;
+  // draw it in after the intro settles
+  setTimeout(() => {
+    gold.style.transition = reduceMotion ? 'none' : 'stroke-dashoffset 2.2s cubic-bezier(.4,0,.2,1)';
+    gold.style.strokeDashoffset = 0;
+  }, reduceMotion ? 0 : 2400);
+})();
+
+/* ===== Cinematic intro sequence ===== */
+(function runIntro(){
+  const intro = $('intro');
+  const world = $('world');
+  if (reduceMotion) {
+    world.classList.remove('intro-zoom');
+    intro.classList.add('hide');
+    setTimeout(()=> intro.style.display='none', 300);
+    return;
+  }
+  // settle the camera
+  requestAnimationFrame(()=> requestAnimationFrame(()=> world.classList.remove('intro-zoom')));
+  // fade the title out
+  setTimeout(()=> intro.classList.add('hide'), 2300);
+  setTimeout(()=> intro.style.display = 'none', 3300);
+})();
+
+/* ===== Stage pill ===== */
+const pill = $('stagePill');
+const pillWrap = document.querySelector('.stage-pill-wrap');
+function openPill()  { pillWrap.classList.remove('intro'); pill.classList.add('expanded'); }
+function closePill() { pill.classList.remove('expanded'); }
+function togglePill(){ pill.classList.contains('expanded') ? closePill() : openPill(); }
+
+function selectStage(id) {
+  selectedId = id;
+  const s = stages.find(x => x.id === id);
+  if (!s) return;
+  const statusEl = $('pillStatus');
+  statusEl.className = 'pill-status';
+  if (s.status === 'current') { statusEl.classList.add('s-current'); statusEl.textContent = SETTLED ? 'Complete' : 'In Progress'; }
+  else if (s.status === 'done') { statusEl.classList.add('s-done'); statusEl.textContent = 'Completed'; }
+  else { statusEl.classList.add('s-future'); statusEl.textContent = 'Upcoming'; }
+  $('pillStep').textContent = `Stage ${s.id} of ${stages.length}`;
+  $('pillName').textContent = s.title;
+  $('pillMeta').textContent = s.meta;
+  const notice = $('pillNotice');
+  if (s.status === 'future') {
+    const curS = stages.find(x => x.id === CURRENT_ID);
+    notice.className = 'pill-notice n-future';
+    notice.textContent = `You're not here yet. You're currently at Stage ${CURRENT_ID}, ${curS.title}. This one is further up the trail.`;
+    notice.style.display = 'block';
+  } else if (s.status === 'done') {
+    notice.className = 'pill-notice n-done';
+    notice.textContent = `Done and dusted. You've already climbed past this one.`;
+    notice.style.display = 'block';
+  } else {
+    notice.style.display = 'none';
+  }
+  $('pillBody').textContent = s.body;
+  const list = $('pillChecklist');
+  list.innerHTML = '';
+  s.checklist.forEach((item, idx) => {
+    const li = document.createElement('li');
+    if (item.done) li.classList.add('done');
+    if (item.active) li.classList.add('active');
+    li.style.animationDelay = (idx * 55) + 'ms';
+    li.innerHTML = `<div class="check">${item.done ? '✓' : (item.active ? '●' : '')}</div><div>${esc(item.text)}</div>`;
+    list.appendChild(li);
+  });
+  // thinking bar: fills as items on this stage get ticked off
+  const ppTotal = s.checklist.length || 1;
+  const ppDone = s.checklist.filter(c => c.done).length;
+  $('ppFill').style.width = (s.status === 'done' ? 100 : Math.round(ppDone / ppTotal * 100)) + '%';
+  // work log: live ticker of everything done on this stage
+  const wl = WORKLOG[s.id] || [];
+  const wlWrap = $('pillWorklogWrap');
+  const grid = $('pecGrid');
+  if ((s.status === 'done' || s.status === 'current') && wl.length) {
+    const wlSum = wl.reduce((a, x) => a + x.m, 0);
+    $('wlMeta').textContent = `${wl.length} jobs · ${fmtMin(wlSum)} saved`;
+    const rows = wl.map(item =>
+      `<li><span class="wl-tick">✓</span><span class="wl-text">${esc(item.t)}</span><span class="wl-min">+${fmtMin(item.m)}</span></li>`
+    ).join('');
+    const list = $('wlList');
+    list.innerHTML = rows + rows;  // doubled for a seamless loop
+    list.style.setProperty('--wl-dur', (wl.length * 2.6) + 's');
+    list.style.animation = 'none';
+    void list.offsetHeight;        // restart the loop from the top on stage change
+    list.style.animation = '';
+    wlWrap.style.display = 'flex';
+    grid.classList.remove('single');
+  } else {
+    wlWrap.style.display = 'none';
+    grid.classList.add('single');
+  }
+  $('prevBtn').disabled = s.id === 1;
+  $('nextBtn').disabled = s.id === stages.length;
+  stages.forEach(x => x._node.classList.toggle('selected', x.id === id));
+  $('pillReturn').classList.toggle('visible', s.id !== CURRENT_ID);
+  // next-up footer
+  const nextWrap = $('pillNextWrap');
+  if (s.id < stages.length) {
+    nextWrap.style.display = 'flex';
+    $('pillNextBtn').textContent = `Next: ${stages[s.id].title} ›`;
+  } else {
+    nextWrap.style.display = 'none';
+  }
+  if (CAM.pannable) {
+    const selS = stages.find(x => x.id === selectedId);
+    if (selS) panTo(selS.svgX - (window.innerWidth / CAM.s) / 2);
+  }
+}
+$('pillNextBtn').addEventListener('click', e => { e.stopPropagation(); selectStage(Math.min(stages.length, selectedId + 1)); });
+$('pillToggle').addEventListener('click', e => { e.stopPropagation(); togglePill(); });
+$('pillCollapsed').addEventListener('click', e => { if (e.target.closest('button')) return; togglePill(); });
+$('prevBtn').addEventListener('click', e => { e.stopPropagation(); selectStage(Math.max(1, selectedId - 1)); openPill(); });
+$('nextBtn').addEventListener('click', e => { e.stopPropagation(); selectStage(Math.min(stages.length, selectedId + 1)); openPill(); });
+$('pillReturn').addEventListener('click', e => { e.stopPropagation(); selectStage(CURRENT_ID); });
+selectStage(CURRENT_ID);
+setTimeout(openPill, reduceMotion ? 400 : 4600);
+
+/* ===== Progress ===== */
+const completedCount = stages.filter(s => s.status === 'done').length;
+const currentCount = SETTLED ? 1 : stages.filter(s => s.status === 'current').length;
+const pctVal = SETTLED ? 100 : Math.round(((completedCount + currentCount * 0.5) / stages.length) * 100);
+setTimeout(() => {
+  $('progressPct').textContent = pctVal + '%';
+  $('progressFill').style.width = pctVal + '%';
+}, 600);
+document.title = `${CONFIG.clientName ? CONFIG.clientName + "'s" : 'Your'} Journey · ${pctVal}% · Fund One`;
+
+/* saved-hours counter ticks up like a clock */
+(function savedCounter() {
+  const el = $('savedHrs');
+  if (!el) return;
+  const target = Math.max(1, Math.round(SAVED_MIN / 60));
+  if (reduceMotion) { el.textContent = target; return; }
+  const t0 = performance.now();
+  function step(now) {
+    const t = Math.min(1, (now - t0) / 1600);
+    el.textContent = Math.round(target * (t * (2 - t)));
+    if (t < 1) requestAnimationFrame(step);
+  }
+  setTimeout(() => requestAnimationFrame(step), 900);
+})();
+
+/* ===== Live working engine ===== */
+const workingLines = {
+  1: ["Opening your enquiry", "Reading through what you're after", "Getting your file started"],
+  2: ["Preparing for your assessment call", "Reviewing your details before we talk", "Mapping out the questions that matter"],
+  3: ["Checking your documents as they land", "Matching everything against the application", "Closing out the last document gaps"],
+  4: ["Packaging your submission", "Writing your file notes", "Lodging your application"],
+  5: ["Tracking your file with the assessor", "Checking in on the assessment queue", "Watching your file so it keeps moving"],
+  6: ["Working through the lender's questions", "Preparing the answers they need", "Clearing the queries one by one"],
+  7: ["Confirming your pre approval details", "Locking in what you can spend", "Setting up the car hunt"],
+  8: ["Lining up car options with 1800 Drive", "Checking listings against your approval", "Sense checking the numbers on each car"],
+  9: ["Sending the car details for checks", "Tracking the background checks", "Confirming the car stacks up"],
+  10: ["Pushing for your full approval", "Confirming every box is ticked", "Getting it locked in writing"],
+  11: ["Pricing your insurance options", "Quoting the warranty cover", "Comparing the cover side by side"],
+  12: ["Preparing your sign off pack", "Checking every figure first", "Getting everything ready to sign"],
+  13: ["Reviewing your contracts line by line", "Checking the repayments match", "Sending your contracts across"],
+  14: ["Finalising your insurance choice", "Setting up your review link", "Sorting your JORD10 code"],
+  15: ["Booking your ID check", "Arranging the lender welcome call", "Final identity checks underway"],
+  16: ["Coordinating settlement with the dealership", "Confirming the remittance", "Locking in your pickup"]
+};
+(function liveEngine() {
+  if (!WORKING) return;
+  document.body.classList.add('live-on');
+  $('liveStrip').classList.add('on');
+  const wb = $('workBubble');
+  if (wb) wb.classList.add('on');
+  const curStage = stages.find(s => s.id === CURRENT_ID);
+  if (curStage && curStage._node) curStage._node.classList.add('working');
+  const lineEl = $('liveLine');
+  const single = !!CONFIG.statusNow;
+  const lines = single ? [CONFIG.statusNow] : (workingLines[CURRENT_ID] || ['Working on your file']);
+  if (reduceMotion) { lineEl.textContent = lines[0]; return; }
+  let li = 0, ci = 0, deleting = false;
+  function tick() {
+    const full = lines[li % lines.length];
+    if (!deleting) {
+      ci++;
+      lineEl.textContent = full.slice(0, ci);
+      if (ci === full.length) {
+        if (single) return;                 // a real message stays put, caret keeps blinking
+        deleting = true;
+        return void setTimeout(tick, 7000); // hold the line so it can be read calmly
+      }
+      return void setTimeout(tick, 60 + Math.random() * 50);
+    }
+    ci--;
+    lineEl.textContent = full.slice(0, ci);
+    if (ci === 0) { deleting = false; li++; return void setTimeout(tick, 800); }
+    setTimeout(tick, 18);
+  }
+  setTimeout(tick, reduceMotion ? 0 : 4200);  // start once the pill has arrived
+})();
+
+/* ===== Celebrate mode: add ?celebrate=1 to the link when a client advances a stage ===== */
+if (CONFIG.celebrate && !SETTLED) {
+  const cur = stages.find(s => s.id === CURRENT_ID);
+  $('toastText').textContent = CONFIG.clientName
+    ? `Great news, ${CONFIG.clientName}! You've reached ${cur.title}.`
+    : `Great news! You've reached ${cur.title}.`;
+  setTimeout(() => {
+    $('toast').classList.add('show');
+    if (!reduceMotion) { spawnFirework(); setTimeout(spawnFirework, 450); setTimeout(spawnFirework, 950); }
+  }, reduceMotion ? 600 : 3600);
+  setTimeout(() => $('toast').classList.remove('show'), reduceMotion ? 7000 : 10500);
+}
+
+/* ===== Mobile sheets ===== */
+const overlay = $('sheetOverlay');
+const hurdlesSheet = $('hurdlesSheet');
+const brokerSheet = $('brokerSheet');
+function openSheet(sheet) { overlay.classList.add('visible'); sheet.classList.add('open'); }
+function closeSheets() {
+  overlay.classList.remove('visible');
+  hurdlesSheet.classList.remove('open');
+  brokerSheet.classList.remove('open');
+  $('fbModal').classList.remove('open');
+}
+$('fabHurdles').addEventListener('click', () => openSheet(hurdlesSheet));
+$('fabBroker').addEventListener('click', () => openSheet(brokerSheet));
+overlay.addEventListener('click', closeSheets);
+
+/* ============================================================
+   LIVING SCENE ENGINE
+   Time of day (client's local clock) + their real weather
+   ============================================================ */
+const sceneSvg = $('sceneSvg');
+
+const PALETTES = {
+  dawn:  { top:'#35507e', mid:'#d98b95', bot:'#ffd9b0', sunPos:[180,470],  sunCore:'#ffe0b0', sunInner:'#ffd090', sunOp:1,  moonOp:0, stars:0.2, aurora:0,   clouds:0.85, alpen:0.7,  shade:0.05, mist:0.6 },
+  day:   { top:'#4d96c8', mid:'#86bfde', bot:'#d4eaf2', sunPos:[1020,130], sunCore:'#fff5d0', sunInner:'#ffeeb0', sunOp:1,  moonOp:0, stars:0,   aurora:0,   clouds:0.85, alpen:0.4,  shade:0,    mist:0 },
+  dusk:  { top:'#41356b', mid:'#e0795c', bot:'#ffb878', sunPos:[1040,468], sunCore:'#ffc070', sunInner:'#ffaa50', sunOp:1,  moonOp:0, stars:0.3, aurora:0,   clouds:0.8,  alpen:0.9,  shade:0.08, mist:0.18 },
+  night: { top:'#0b1530', mid:'#1c2a4d', bot:'#2f4368', sunPos:[1020,130], sunCore:'#fff5d0', sunInner:'#ffeeb0', sunOp:0,  moonOp:1, stars:1,   aurora:0.4, clouds:0.15, alpen:0.15, shade:0.3,  mist:0.25 }
+};
+
+/* ===== Scenery themes: same mountain, different mood ===== */
+const THEMES = {
+  classic: {
+    dawn:  { top:'#35507e', mid:'#d98b95', bot:'#ffd9b0' },
+    day:   { top:'#4d96c8', mid:'#86bfde', bot:'#d4eaf2' },
+    dusk:  { top:'#41356b', mid:'#e0795c', bot:'#ffb878' },
+    night: { top:'#0b1530', mid:'#1c2a4d', bot:'#2f4368' }
+  },
+  sunset: {
+    dawn:  { top:'#4a2f63', mid:'#d96a8a', bot:'#ffc9a3' },
+    day:   { top:'#6f86c2', mid:'#d99a86', bot:'#ffe0b8' },
+    dusk:  { top:'#3a2350', mid:'#e0654f', bot:'#ffae6e' },
+    night: { top:'#1a1030', mid:'#3a2356', bot:'#5a3a78' }
+  },
+  lagoon: {
+    dawn:  { top:'#1f5a6e', mid:'#5ec8c0', bot:'#cfeee2' },
+    day:   { top:'#2e9ab0', mid:'#6fd0d8', bot:'#dff6f2' },
+    dusk:  { top:'#1d4a66', mid:'#3aa8a0', bot:'#ffd9a0' },
+    night: { top:'#06222e', mid:'#0e3a46', bot:'#1f5a64' }
+  },
+  candy: {
+    dawn:  { top:'#6a4a9e', mid:'#e88ac0', bot:'#ffd9ec' },
+    day:   { top:'#7a5fd0', mid:'#c08ae8', bot:'#ffe2f4' },
+    dusk:  { top:'#5a3a8e', mid:'#e070b0', bot:'#ffc2e0' },
+    night: { top:'#241040', mid:'#3a1f63', bot:'#5a2f86' }
+  }
+};
+const THEME_ORDER = ['classic', 'sunset', 'lagoon', 'candy'];
+let themeName = THEME_ORDER.includes((CONFIG.theme || '').toLowerCase()) ? CONFIG.theme.toLowerCase() : 'classic';
+function themedSky(mode) {
+  const t = THEMES[themeName] || THEMES.classic;
+  return t[mode] || THEMES.classic[mode];
+}
+
+function modeForHour(h) {
+  if (h >= 5 && h < 8)  return 'dawn';
+  if (h >= 8 && h < 17) return 'day';
+  if (h >= 17 && h < 19) return 'dusk';
+  return 'night';
+}
+
+/* Generate stars once */
+(function buildStars(){
+  const g = $('starsGrp');
+  for (let i = 0; i < 90; i++) {
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('cx', Math.random() * 1200);
+    c.setAttribute('cy', -1300 + Math.random() * 1640);
+    c.setAttribute('r', (0.4 + Math.random() * 0.9).toFixed(2));
+    c.setAttribute('fill', '#ffffff');
+    c.setAttribute('class', 'star');
+    c.style.animationDelay = (Math.random() * 3.2).toFixed(2) + 's';
+    g.appendChild(c);
+  }
+})();
+
+/* Hex lerp for smooth sky transitions */
+function hexLerp(a, b, t) {
+  const pa = [1,3,5].map(i => parseInt(a.slice(i, i+2), 16));
+  const pb = [1,3,5].map(i => parseInt(b.slice(i, i+2), 16));
+  return '#' + pa.map((v, i) => Math.round(v + (pb[i] - v) * t).toString(16).padStart(2, '0')).join('');
+}
+
+let currentSky = { top:'#4d96c8', mid:'#86bfde', bot:'#d4eaf2' };
+let currentMode = null;
+let weatherFX = 'clear';
+
+function applyMode(mode, instant) {
+  const P = PALETTES[mode];
+  currentMode = mode;
+  sceneSvg.setAttribute('class', mode);
+
+  // group opacities (CSS transitions handle the fade)
+  const sunDim = (mode === 'day' || mode === 'dawn') && (weatherFX === 'cloudy' || weatherFX === 'rain' || weatherFX === 'storm') ? 0.5 : 1;
+  $('sunGrp').style.opacity = P.sunOp * sunDim;
+  $('moonGrp').style.opacity = P.moonOp;
+  $('starsGrp').style.opacity = P.stars;
+  $('auroraGrp').style.opacity = P.aurora;
+  $('cloudsGrp').style.opacity = P.clouds;
+  $('alpenPath').style.opacity = P.alpen;
+  $('nightShade').style.opacity = P.shade + (weatherFX === 'storm' ? 0.1 : 0);
+  $('cloudDeck').style.opacity = (weatherFX === 'cloudy' || weatherFX === 'rain' || weatherFX === 'storm') ? 0.9 : 0;
+  $('mistGrp').style.opacity = P.mist;
+
+  // reposition sun mid-fade so the jump is hidden
+  setTimeout(() => {
+    $('sunGrp').setAttribute('transform', `translate(${P.sunPos[0]},${P.sunPos[1]})`);
+    $('sunCore').setAttribute('fill', P.sunCore);
+    $('sunInner').setAttribute('fill', P.sunInner);
+  }, instant ? 0 : 700);
+
+  // sky gradient lerp (themed)
+  const from = { ...currentSky };
+  const sky = themedSky(mode);
+  const to = { top: sky.top, mid: sky.mid, bot: sky.bot };
+  if (instant || reduceMotion) {
+    $('skyTop').setAttribute('stop-color', to.top);
+    $('skyMid').setAttribute('stop-color', to.mid);
+    $('skyBot').setAttribute('stop-color', to.bot);
+    document.body.style.background = to.top;
+    $('themeColor').setAttribute('content', to.top);
+    currentSky = to;
+    return;
+  }
+  const t0 = performance.now(), dur = 1800;
+  function step(now) {
+    const t = Math.min(1, (now - t0) / dur);
+    const e = t * (2 - t); // easeOut
+    const top = hexLerp(from.top, to.top, e);
+    $('skyTop').setAttribute('stop-color', top);
+    $('skyMid').setAttribute('stop-color', hexLerp(from.mid, to.mid, e));
+    $('skyBot').setAttribute('stop-color', hexLerp(from.bot, to.bot, e));
+    document.body.style.background = top;
+    $('themeColor').setAttribute('content', top);
+    if (t < 1) requestAnimationFrame(step);
+    else currentSky = to;
+  }
+  requestAnimationFrame(step);
+}
+
+/* initial mode, then re-check every minute (catches sunset while open) */
+applyMode(modeForHour(new Date().getHours()), true);
+setInterval(() => {
+  const m = modeForHour(new Date().getHours());
+  if (m !== currentMode) applyMode(m, false);
+}, 60 * 1000);
+
+/* theme cycling */
+function cycleTheme() {
+  const i = THEME_ORDER.indexOf(themeName);
+  themeName = THEME_ORDER[(i + 1) % THEME_ORDER.length];
+  applyMode(currentMode, false);
+}
+[$('themeBtn'), $('themeBtnM')].forEach(b => b && b.addEventListener('click', cycleTheme));
+
+/* ===== Weather: client's real location and conditions ===== */
+const weatherCodes = {
+  0:{label:"Clear",icon:"☀"},1:{label:"Mostly Clear",icon:"🌤"},2:{label:"Partly Cloudy",icon:"⛅"},3:{label:"Overcast",icon:"☁"},
+  45:{label:"Foggy",icon:"🌫"},48:{label:"Rime Fog",icon:"🌫"},51:{label:"Light Drizzle",icon:"🌦"},53:{label:"Drizzle",icon:"🌦"},
+  55:{label:"Heavy Drizzle",icon:"🌧"},61:{label:"Light Rain",icon:"🌧"},63:{label:"Rain",icon:"🌧"},65:{label:"Heavy Rain",icon:"🌧"},
+  71:{label:"Light Snow",icon:"🌨"},73:{label:"Snowfall",icon:"❄"},75:{label:"Heavy Snow",icon:"❄"},77:{label:"Snow Grains",icon:"❄"},
+  80:{label:"Light Showers",icon:"🌦"},81:{label:"Showers",icon:"🌧"},82:{label:"Heavy Showers",icon:"🌧"},85:{label:"Snow Showers",icon:"🌨"},
+  86:{label:"Heavy Showers",icon:"❄"},95:{label:"Thunderstorm",icon:"⛈"},96:{label:"Storm + Hail",icon:"⛈"},99:{label:"Severe Storm",icon:"⛈"}
+};
+const auStateCodes = {"Queensland":"QLD","New South Wales":"NSW","Victoria":"VIC","Western Australia":"WA","South Australia":"SA","Tasmania":"TAS","Australian Capital Territory":"ACT","Northern Territory":"NT"};
+
+function fxForCode(code) {
+  if (code >= 95) return 'storm';
+  if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return 'rain';
+  if ((code >= 71 && code <= 77) || code === 85 || code === 86) return 'snow';
+  if (code === 2 || code === 3 || code === 45 || code === 48) return 'cloudy';
+  return 'clear';
+}
+
+async function loadWeather() {
+  let lat = -27.4698, lon = 153.0251;
+  let locationName = 'Your area';
+  try {
+    const ipRes = await fetch('https://ipapi.co/json/', { cache: 'no-store' });
+    if (ipRes.ok) {
+      const ip = await ipRes.json();
+      if (ip.latitude && ip.longitude) {
+        lat = ip.latitude; lon = ip.longitude;
+        const city = ip.city, region = ip.region;
+        const stateCode = auStateCodes[region] || ip.region_code || region;
+        if (city && stateCode) locationName = `${city}, ${stateCode}`;
+        else if (city) locationName = city;
+        else if (region) locationName = region;
+      }
+    }
+  } catch {}
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&timezone=auto`;
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) throw 0;
+    const data = await res.json();
+    const cur = data.current || {};
+    const code = cur.weather_code ?? 1;
+    const temp = Math.round(cur.temperature_2m ?? 22);
+    const meta = weatherCodes[code] || weatherCodes[1];
+    $('weatherTemp').textContent = `${temp}°`;
+    $('weatherIcon').textContent = meta.icon;
+    $('weatherDesc').textContent = `${locationName} · ${meta.label}`;
+    const fx = fxForCode(code);
+    if (fx !== weatherFX) {
+      weatherFX = fx;
+      rebuildPrecip();
+      applyMode(currentMode, false); // re-apply so clouds/sun dim update
+    }
+  } catch {
+    $('weatherTemp').textContent = '22°';
+    $('weatherIcon').textContent = '🌤';
+    $('weatherDesc').textContent = `${locationName} · Partly Cloudy`;
+  }
+}
+loadWeather();
+setInterval(loadWeather, 10 * 60 * 1000);
+
+/* ============================================================
+   PARTICLES: snow on the peak, the client's weather below,
+   and fireworks when the file is settled
+   ============================================================ */
+const canvas = $('snowCanvas');
+const ctx = canvas.getContext('2d');
+let W, H, flakes = [], drops = [], fireworks = [], meteors = [], lastMeteor = 0, nextMeteorGap = 9000;
+
+let DPR = 1;
+function resize() {
+  DPR = window.innerWidth < 760 ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+  W = canvas.width  = window.innerWidth  * DPR;
+  H = canvas.height = window.innerHeight * DPR;
+  canvas.style.width  = window.innerWidth + 'px';
+  canvas.style.height = window.innerHeight + 'px';
+  rebuildPrecip();
+}
+function rebuildPrecip() {
+  const area = window.innerWidth * window.innerHeight;
+  const motionScale = reduceMotion ? 0.35 : 1;
+  // snow: always on the peak; full-screen when it's actually snowing for them
+  const snowCount = Math.floor(area / 7500 * (weatherFX === 'snow' ? 1.5 : 0.9) * motionScale);
+  flakes = [];
+  for (let i = 0; i < snowCount; i++) flakes.push(makeFlake(true));
+  // rain: only when it's raining where the client is
+  drops = [];
+  if (weatherFX === 'rain' || weatherFX === 'storm') {
+    const rainCount = Math.floor(area / (weatherFX === 'storm' ? 5500 : 8000) * motionScale);
+    for (let i = 0; i < rainCount; i++) drops.push(makeDrop(true));
+  }
+}
+function makeFlake(initial) {
+  const layer = Math.random();
+  return {
+    x: Math.random() * W,
+    y: initial ? Math.random() * H * 0.6 : -10,
+    r: (0.4 + layer * 2) * DPR,
+    vy: (0.3 + layer * 1.4) * DPR,
+    vx: (Math.random() - 0.5) * 0.3 * DPR,
+    drift: Math.random() * Math.PI * 2,
+    driftSpeed: 0.005 + Math.random() * 0.015,
+    opacity: 0.4 + layer * 0.55,
+    layer
+  };
+}
+function makeDrop(initial) {
+  return {
+    x: Math.random() * W,
+    y: initial ? Math.random() * H : -20,
+    vy: (7 + Math.random() * 5) * DPR,
+    vx: 1.1 * DPR,
+    len: (8 + Math.random() * 7) * DPR,
+    op: 0.3 + Math.random() * 0.3
+  };
+}
+function spawnFirework(px, py, count) {
+  const fx = px !== undefined ? px : (0.2 + Math.random() * 0.6) * W;
+  const fy = py !== undefined ? py : (0.12 + Math.random() * 0.25) * H;
+  const colors = ['#f6b932', '#ffd66b', '#c2402e', '#4dc8c8', '#ffffff'];
+  const color = colors[Math.floor(Math.random() * colors.length)];
+  const parts = [];
+  const n = count || (26 + Math.floor(Math.random() * 14));
+  for (let i = 0; i < n; i++) {
+    const a = (Math.PI * 2 * i) / n + Math.random() * 0.2;
+    const sp = (1.6 + Math.random() * 2.4) * DPR;
+    parts.push({ x: fx, y: fy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 1 });
+  }
+  fireworks.push({ parts, color });
+}
+let lastFw = 0;
+function animateParticles(now) {
+  ctx.clearRect(0, 0, W, H);
+
+  // snow
+  const snowEverywhere = weatherFX === 'snow';
+  const fadeStart = snowEverywhere ? H : H * 0.42;
+  const fadeEnd   = snowEverywhere ? H : H * 0.68;
+  for (const f of flakes) {
+    f.drift += f.driftSpeed;
+    f.x += f.vx + Math.sin(f.drift) * 0.4 * DPR + 0.25 * DPR * f.layer;
+    f.y += f.vy;
+    if (f.y > fadeEnd + 6) { f.y = -6; f.x = Math.random() * W; }
+    if (f.x > W + 6) f.x = -6;
+    if (f.x < -6) f.x = W + 6;
+    let alpha = f.opacity;
+    if (!snowEverywhere && f.y > fadeStart) alpha *= Math.max(0, 1 - (f.y - fadeStart) / (fadeEnd - fadeStart));
+    ctx.beginPath();
+    ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+    ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // rain
+  if (drops.length) {
+    ctx.lineWidth = 1 * DPR;
+    for (const d of drops) {
+      d.x += d.vx; d.y += d.vy;
+      if (d.y > H + 20) { d.y = -20; d.x = Math.random() * W; }
+      if (d.x > W + 10) d.x = -10;
+      ctx.strokeStyle = `rgba(190,215,240,${d.op})`;
+      ctx.beginPath();
+      ctx.moveTo(d.x, d.y);
+      ctx.lineTo(d.x - d.vx * 1.4, d.y - d.len);
+      ctx.stroke();
+    }
+  }
+
+  // shooting stars at night
+  if (currentMode === 'night' && !reduceMotion) {
+    if (now - lastMeteor > nextMeteorGap) {
+      meteors.push({ x: Math.random() * W * 0.8, y: Math.random() * H * 0.22, vx: (5 + Math.random() * 3) * DPR, vy: (1.6 + Math.random() * 1.2) * DPR, life: 1 });
+      lastMeteor = now;
+      nextMeteorGap = 12000 + Math.random() * 20000;
+    }
+  }
+  for (let i = meteors.length - 1; i >= 0; i--) {
+    const m = meteors[i];
+    m.x += m.vx; m.y += m.vy; m.life -= 0.02;
+    if (m.life <= 0 || m.x > W + 60) { meteors.splice(i, 1); continue; }
+    const tail = 9;
+    const grad = ctx.createLinearGradient(m.x, m.y, m.x - m.vx * tail, m.y - m.vy * tail);
+    grad.addColorStop(0, `rgba(255,255,255,${0.9 * m.life})`);
+    grad.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 1.4 * DPR;
+    ctx.beginPath();
+    ctx.moveTo(m.x, m.y);
+    ctx.lineTo(m.x - m.vx * tail, m.y - m.vy * tail);
+    ctx.stroke();
+  }
+
+  // fireworks: auto-spawn when settled, render whenever any exist (celebrate mode fires its own)
+  if (SETTLED && !reduceMotion && now - lastFw > 1500 && fireworks.length < 4) { spawnFirework(); lastFw = now; }
+  if (fireworks.length) {
+    for (let i = fireworks.length - 1; i >= 0; i--) {
+      const fw = fireworks[i];
+      let alive = false;
+      for (const p of fw.parts) {
+        p.x += p.vx; p.y += p.vy;
+        p.vy += 0.035 * DPR;
+        p.vx *= 0.985; p.vy *= 0.985;
+        p.life -= 0.012;
+        if (p.life > 0) {
+          alive = true;
+          ctx.beginPath();
+          ctx.fillStyle = fw.color + Math.round(p.life * 255).toString(16).padStart(2, '0');
+          ctx.arc(p.x, p.y, 2 * DPR * p.life, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      if (!alive) fireworks.splice(i, 1);
+    }
+  }
+
+  requestAnimationFrame(animateParticles);
+}
+window.addEventListener('resize', resize);
+resize();
+requestAnimationFrame(animateParticles);
+
+/* ===== Parallax (background only) ===== */
+const parallaxLayers = [
+  { el: document.getElementById('parallax-back'), depth: 3 },
+  { el: document.getElementById('layer-far'),     depth: 5 },
+  { el: document.getElementById('layer-mid'),     depth: 9 }
+];
+let mx = 0, my = 0, tx = 0, ty = 0;
+window.addEventListener('mousemove', e => {
+  mx = (e.clientX / window.innerWidth  - 0.5);
+  my = (e.clientY / window.innerHeight - 0.5);
+});
+(function loopParallax() {
+  tx += (mx - tx) * 0.05;
+  ty += (my - ty) * 0.05;
+  parallaxLayers.forEach(l => {
+    if (l.el) l.el.setAttribute('transform', `translate(${-tx * l.depth}, ${-ty * l.depth})`);
+  });
+  requestAnimationFrame(loopParallax);
+})();
+
+/* ===== Contact buttons: call, message, email ===== */
+function wireContact(callId, smsId, mailId) {
+  $(callId).href = `tel:${CONFIG.brokerPhone}`;
+  $(smsId).href = `sms:${CONFIG.brokerPhone}?&body=${encodeURIComponent("Hi Jordy, ")}`;
+  $(mailId).href = `mailto:${CONFIG.brokerEmail}?subject=${encodeURIComponent("Question about my finance application")}`;
+}
+wireContact('callBtn', 'smsBtn', 'mailBtn');
+wireContact('callBtnM', 'smsBtnM', 'mailBtnM');
+
+/* ===== Feedback: rotating suggestions, straight to management ===== */
+const FB_GOOD = [
+  "jordy kept me in the loop the whole way through",
+  "honestly the easiest finance process ive been through",
+  "always picked up when i called or got straight back to me",
+  "explained everything in plain english which i really appreciated",
+  "felt like he actually cared about getting me the right deal not just any deal",
+  "super quick with updates i never had to chase",
+  "made something stressful feel pretty easy to be honest",
+  "the tracking page was a great touch loved watching it move",
+  "got me sorted way faster than i expected",
+  "really patient with all my questions never made me feel dumb",
+  "communication was spot on from day one",
+  "he was upfront about everything no surprises",
+  "felt looked after the entire time",
+  "the whole thing just ran smooth from start to finish",
+  "would happily send friends and family his way"
+];
+const FB_BAD = [
+  "took longer than i expected to hear back at the start",
+  "i had to chase for an update a couple of times",
+  "wasnt always sure what was happening with my file",
+  "some of the paperwork felt repetitive like i sent things twice",
+  "would have liked a heads up before the timeline moved",
+  "a few things werent explained until i asked",
+  "the wait between stages felt long with no news",
+  "i got a bit confused about what i still needed to send",
+  "felt a little rushed when it came to signing",
+  "hard to get hold of him at one point",
+  "the process took more back and forth than i thought it would",
+  "i wasnt clear on the costs until late in the piece",
+  "some messages went unanswered for a day or two",
+  "expectations on timing couldve been set better early on",
+  "the start was great but it went quiet near the end"
+];
+let lastG = '', lastB = '';
+function pick3(pool, avoid) {
+  let trio, guard = 0;
+  do {
+    trio = [...pool].sort(() => Math.random() - 0.5).slice(0, 3);
+    guard++;
+  } while (avoid && trio.join('|') === avoid && guard < 6);
+  return trio;
+}
+function fillFb(sel, arr, kind) {
+  const el = document.querySelector(sel);
+  el.innerHTML = '';
+  arr.forEach(t => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'fb-opt ' + kind;
+    btn.textContent = t;
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.fb-opt').forEach(o => o.classList.remove('sel'));
+      btn.classList.add('sel');
+      $('fbText').value = t;
+    });
+    el.appendChild(btn);
+  });
+}
+function renderFb() {
+  const g = pick3(FB_GOOD, lastG), b = pick3(FB_BAD, lastB);
+  lastG = g.join('|'); lastB = b.join('|');
+  fillFb('#fbGood', g, 'good');
+  fillFb('#fbBad', b, 'bad');
+}
+function openFb() {
+  $('fbThanks').style.display = 'none';
+  overlay.classList.add('visible');
+  $('fbModal').classList.add('open');
+}
+renderFb();
+$('fbShuffle').addEventListener('click', renderFb);
+['fbOpen', 'fbOpenM'].forEach(id => { const el = $(id); el && el.addEventListener('click', openFb); });
+if (!CONFIG.feedbackEmail) {
+  ['fbOpen', 'fbOpenM'].forEach(id => { const el = $(id); if (el) el.style.display = 'none'; });
+}
+$('fbSend').addEventListener('click', () => {
+  const text = $('fbText').value.trim();
+  if (!text) { $('fbText').focus(); return; }
+  const body = `${text}\n\nfile: ${CONFIG.fileRef}\nclient: ${CONFIG.clientName || ''}\nstage: ${CURRENT_ID} of ${stages.length}`;
+  location.href = `mailto:${CONFIG.feedbackEmail}?subject=${encodeURIComponent('Client feedback · ' + CONFIG.fileRef)}&body=${encodeURIComponent(body)}`;
+  $('fbThanks').style.display = 'block';
+});
+
+/* ===== Cheer button: a little applause meter for Jordy ===== */
+let cheers = 0;
+const cheerMilestones = {
+  5:  "Five claps! You're making Jordy's day.",
+  10: "Ten! Easy now, he'll get a big head.",
+  20: "Twenty claps. Official fan club member.",
+  50: "Fifty?! Jordy owes you a coffee."
+};
+function doCheer(btn) {
+  cheers++;
+  $('cheerCount').textContent = cheers;
+  const mb = $('cheerBadgeM');
+  if (mb) { mb.textContent = cheers; mb.style.display = 'inline-block'; }
+  btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop');
+  if (!reduceMotion) {
+    const r = btn.getBoundingClientRect();
+    const fl = document.createElement('span');
+    fl.className = 'cheer-float';
+    fl.textContent = '+1 👏';
+    fl.style.left = (r.left + r.width / 2) + 'px';
+    fl.style.top = (r.top - 6) + 'px';
+    document.body.appendChild(fl);
+    setTimeout(() => fl.remove(), 1100);
+    spawnFirework((r.left + r.width / 2) * DPR, (r.top - 4) * DPR, 12);
+  }
+  if (cheerMilestones[cheers]) {
+    $('toastText').textContent = cheerMilestones[cheers];
+    $('toast').classList.add('show');
+    setTimeout(() => $('toast').classList.remove('show'), 3200);
+  }
+}
+[$('cheerBtn'), $('cheerBtnM')].forEach(b => b && b.addEventListener('click', () => doCheer(b)));
+
+/* ===== Keyboard ===== */
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft')  $('prevBtn').click();
+  if (e.key === 'ArrowRight') $('nextBtn').click();
+  if (e.key === 'Home' || e.key === 'h') $('pillReturn').click();
+  if (e.key === 'Escape') { closePill(); closeSheets(); }
+  if (e.key === ' ') { e.preventDefault(); togglePill(); }
+});
+
+} /* end initJourney */
+</script>
+</body>
+</html>
