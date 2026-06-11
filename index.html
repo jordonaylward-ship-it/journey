@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Fund One Journey · build: clean-type · 11 Jun 2026 -->
+<!-- Fund One Journey · build: mobile-flow · 11 Jun 2026 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -58,7 +58,7 @@
   .stage-layer { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
 
   /* ===== Cinematic intro overlay ===== */
-  .intro {
+  #intro {
     position: fixed; inset: 0;
     z-index: 50;
     display: none; flex-direction: column; /* sky title does the welcoming now */
@@ -1279,6 +1279,56 @@
     .stage.side-top .stage-label { bottom: 44px; }
   }
 
+  /* ===== Portrait phones: hero scene up top, everything scrolls below ===== */
+  body.phone-flow { overflow-y: auto; overflow-x: hidden; background: #edf1f6; }
+  body.phone-flow #world {
+    position: relative; inset: auto;
+    height: var(--heroH, 52vh);
+    overflow: hidden;
+  }
+  body.phone-flow header.hud { position: absolute; justify-content: flex-end; }
+  body.phone-flow .sky-title {
+    display: block; position: absolute; top: 64px;
+    left: 0 !important; width: 100%; transform: none;
+  }
+  body.phone-flow .st-name { font-size: 23px; }
+  body.phone-flow .st-sub { font-size: 10.5px; }
+  body.phone-flow .side-panel {
+    display: flex; flex-direction: column; gap: 12px;
+    padding: 14px 12px 86px;
+    background: #edf1f6;   /* light panel, immune to theme sky colours */
+  }
+  body.phone-flow .side-name { position: static; padding: 0 4px; }
+  body.phone-flow .sn-name { font-size: 22px; }
+  body.phone-flow .stage-pill-wrap {
+    position: static; left: auto; bottom: auto; transform: none;
+    width: auto; max-width: none;
+  }
+  body.phone-flow .stage-pill { max-height: none; }
+  body.phone-flow .stage-pill.expanded { max-height: none; }
+  body.phone-flow .pill-expanded-content { max-height: none; overflow: visible; }
+  body.phone-flow .wl-window { max-height: 200px; }
+  body.phone-flow .hurdles-card,
+  body.phone-flow .broker-card {
+    display: block; position: static; width: auto; margin: 0; max-width: none;
+  }
+  body.phone-flow .stage-label { display: none; }
+  body.phone-flow .stage.current .stage-label {
+    display: block; font-size: 7.5px; padding: 2px 7px; bottom: 6px;
+  }
+  body.phone-flow .stage.current.side-l .stage-label { left: 12px; right: auto; transform: none; text-align: left; }
+  body.phone-flow .stage.current.side-r .stage-label { right: 12px; left: auto; transform: none; text-align: right; }
+  body.phone-flow .trekker-svg { width: 38px; height: 45px; }
+  body.phone-flow .trekker-tag { font-size: 9px; top: -14px; }
+  body.phone-flow .work-bubble { display: none; }
+  body.phone-flow .cheer-broker-svg { width: 30px; height: 38px; }
+  body.phone-flow .cheer-broker-tag { font-size: 8px; }
+  body.phone-flow .mobile-fabs { left: auto; right: 12px; bottom: 12px; }
+  body.phone-flow .mobile-fabs .fab-spacer { display: none; }
+  body.phone-flow .fab-hurdles { display: none; }
+  body.phone-flow .updated-chip { left: 12px; bottom: 12px; z-index: 11; }
+  body.phone-flow .live-on .mobile-fabs,
+  body.live-on.phone-flow .mobile-fabs { bottom: 12px; }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: .01s !important;
@@ -1960,7 +2010,10 @@ function dataUrl() {
 let SETUP_PENDING = false;   // real client link, row not published yet
 async function loadFromSheet() {
   if (!dataUrl()) return;
-  const urlRef = (new URLSearchParams(location.search).get('ref') || '').trim();
+  const params = new URLSearchParams(location.search);
+  const urlRef = (params.get('ref') || '').trim();
+  /* a ref-only link belongs to a sheet row; once name or stage ride in the URL, the URL drives */
+  const pendingRef = urlRef && !(params.get('name') || params.get('stage')) ? urlRef : '';
   const ref = (urlRef || CONFIG.fileRef || '').trim().toLowerCase();
   if (!ref) return;
   try {
@@ -1968,13 +2021,13 @@ async function loadFromSheet() {
     const timer = setTimeout(() => ctrl.abort(), 3500);
     const res = await fetch(dataUrl(), { cache: 'no-store', signal: ctrl.signal });
     clearTimeout(timer);
-    if (!res.ok) { if (urlRef) SETUP_PENDING = true; return; }
+    if (!res.ok) { if (pendingRef) SETUP_PENDING = true; return; }
     const rows = parseCSV(await res.text());
-    if (rows.length < 2) { if (urlRef) SETUP_PENDING = true; return; }
+    if (rows.length < 2) { if (pendingRef) SETUP_PENDING = true; return; }
     const head = rows[0].map(h => h.trim().toLowerCase().replace(/\s+/g, '_'));
     const col = name => head.indexOf(name);
     const match = rows.slice(1).find(r => (r[col('ref')] || '').trim().toLowerCase() === ref);
-    if (!match) { if (urlRef) SETUP_PENDING = true; return; }
+    if (!match) { if (pendingRef) SETUP_PENDING = true; return; }
     SETUP_PENDING = false;
     LAST_ROW_SNAP = JSON.stringify(match);
     const get = name => { const i = col(name); return i === -1 ? '' : (match[i] || '').trim(); };
@@ -2003,7 +2056,7 @@ async function loadFromSheet() {
     if (get('status_now')) CONFIG.statusNow = get('status_now').slice(0, 90);
     if (get('theme')) CONFIG.theme = get('theme');
   } catch (err) {
-    if ((new URLSearchParams(location.search).get('ref') || '').trim()) SETUP_PENDING = true;
+    if (pendingRef) SETUP_PENDING = true;
     console.warn('Journey: sheet not loaded, using built-in values.', err);
   }
 }
@@ -2267,6 +2320,9 @@ sidePanel.innerHTML = `
 document.body.appendChild(sidePanel);
 sidePanel.appendChild(document.querySelector('.stage-pill-wrap'));
 sidePanel.appendChild(document.querySelector('.hurdles-card'));
+if (window.innerWidth < 760 && window.innerHeight > window.innerWidth) {
+  sidePanel.appendChild(document.querySelector('.broker-card'));
+}
 $('greetSub').textContent = greetingWord();
 $('sideName').textContent = CONFIG.clientName || 'Your Journey';
 
@@ -2447,13 +2503,13 @@ let CAM = { s: 1, sy: 1, x0: 0, anchorY: 0, pannable: false, minX: 0, maxX: 0 };
 let camX = null; // camera left edge in scene units; null means centre on the current stage
 function fitScene() {
   const vw = window.innerWidth, vh = window.innerHeight;
-  const phone = vw < 760 && vh > vw;         // portrait phones get the zoomed, swipeable camera
-  const pad = vw < 760 ? 150 : 0;            // keep the valley clear of the stage card on phones
-  const anchorY = vh - pad;
-  let s, sy;
+  const phone = vw < 760 && vh > vw;         // portrait phones: hero scene, page scrolls below
+  let s, sy, heroH = 0;
   if (phone) {
-    s = Math.min((anchorY - 64) / 640, vw / 470); // zoom to a readable window, ~6 camps wide
-    sy = s;
+    /* whole mountain fits the width, gently stretched into a tall hero */
+    heroH = Math.max(300, Math.min(Math.round(vh * 0.54), 540));
+    s = vw / 1200;
+    sy = Math.max(heroH / 640, s);
   } else {
     const panelW = vw >= 1024 ? 436 : 0;          // left journey panel + gutters
     const fitW = (vw - panelW) / 1200;
@@ -2465,10 +2521,12 @@ function fitScene() {
       if (sy < s) sy = s;
     }
   }
-  const visW = vw / s;
-  const visH = vh / sy;
-  const pannable = phone && visW < 1190;
-  const y0 = phone ? (700 + pad / s - visH) : (700 - visH); // valley pinned to the bottom edge
+  document.body.classList.toggle('phone-flow', phone);
+  if (phone) document.documentElement.style.setProperty('--heroH', heroH + 'px');
+  const visW = phone ? 1200 : vw / s;
+  const visH = phone ? (heroH / sy) : (vh / sy);
+  const pannable = false;
+  const y0 = 700 - visH;                     // valley pinned to the bottom edge
   CAM.y0 = y0; CAM.sy = sy;
   const svg = document.getElementById('sceneSvg');
   if (pannable) {
@@ -2493,11 +2551,12 @@ function fitScene() {
     svg.setAttribute('preserveAspectRatio', 'none');
     const x0 = (1200 - visW) / 2; // peak dead centre; the early trail runs below the floating cards
     svg.setAttribute('viewBox', `${x0} ${y0} ${visW} ${visH}`);
-    /* fill the whole viewport; 'none' then stretches the art to match */
-    svg.style.width = vw + 'px'; svg.style.height = vh + 'px'; svg.style.maxWidth = 'none';
+    /* fill the stage area; 'none' then stretches the art to match */
+    const outH = phone ? heroH : vh;
+    svg.style.width = vw + 'px'; svg.style.height = outH + 'px'; svg.style.maxWidth = 'none';
     svg.style.transform = ''; svg.style.willChange = '';
     stageLayer.style.transform = ''; stageLayer.style.willChange = '';
-    CAM.s = s; CAM.x0 = x0; CAM.anchorY = anchorY; CAM.pannable = false;
+    CAM.s = s; CAM.x0 = x0; CAM.anchorY = vh; CAM.pannable = false;
   }
   document.body.classList.toggle('pannable', pannable);
   positionSky();
@@ -2520,7 +2579,7 @@ function positionSky() {
   plane.setAttribute('transform', `translate(0, ${Math.min(40, topY + 150)}) scale(1, ${k})`);
   wisps.setAttribute('transform', `translate(0, ${Math.min(60, topY + 80)}) scale(1, ${k})`);
   const t = document.getElementById('skyTitle');
-  if (t) t.style.left = ((430 - CAM.x0) * CAM.s) + 'px';
+  if (t) t.style.left = window.innerWidth < 760 ? '50%' : ((430 - CAM.x0) * CAM.s) + 'px';
 }
 function applyPan() {
   camX = Math.max(CAM.minX, Math.min(CAM.maxX, camX));
@@ -3107,11 +3166,14 @@ function spawnConfettiBit() {
 
 let DPR = 1;
 function resize() {
+  const host = document.getElementById('world');
+  const cw = host.clientWidth || window.innerWidth;
+  const ch = host.clientHeight || window.innerHeight;
   DPR = window.innerWidth < 760 ? 1 : Math.min(window.devicePixelRatio || 1, 2);
-  W = canvas.width  = window.innerWidth  * DPR;
-  H = canvas.height = window.innerHeight * DPR;
-  canvas.style.width  = window.innerWidth + 'px';
-  canvas.style.height = window.innerHeight + 'px';
+  W = canvas.width  = cw * DPR;
+  H = canvas.height = ch * DPR;
+  canvas.style.width  = cw + 'px';
+  canvas.style.height = ch + 'px';
   rebuildPrecip();
 }
 function rebuildPrecip() {
