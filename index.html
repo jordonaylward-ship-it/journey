@@ -555,7 +555,7 @@
     .side-panel .pill-collapsed { gap: 8px; }
     .side-panel .pill-title { flex: 1; min-width: 0; }
     .side-panel .pill-status { flex: 0 0 auto; }
-    .side-panel .stage-pill.expanded { max-height: min(540px, 62vh); }
+    .side-panel .stage-pill.expanded { max-height: min(640px, 70vh); }
     .side-panel::-webkit-scrollbar { display: none; }
     .side-panel .stage-pill-wrap { position: static; width: 100%; transform: none; }
     .side-panel .hurdles-card { position: static; width: auto; animation: none; opacity: 1; }
@@ -1259,6 +1259,10 @@
   /* Trail labels sit on the mountain face beside each camp, clear of the climber */
   .stage.side-l .stage-label { left: 20px; right: auto; transform: none; bottom: -3px; text-align: left; }
   .stage.side-r .stage-label { left: auto; right: 20px; transform: none; bottom: -3px; text-align: right; }
+  .stage.side-top .stage-label { bottom: 62px; } /* clear of the summit flag */
+  @media (max-width: 759.9px) {
+    .stage.side-top .stage-label { bottom: 44px; }
+  }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
