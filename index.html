@@ -312,7 +312,6 @@
     z-index: -1;
     position: absolute;
     transform: translate(-50%, -100%);
-    z-index: 6;
     pointer-events: none;
     animation: cheerBounce 1.1s cubic-bezier(.5,0,.5,1) infinite;
   }
@@ -556,6 +555,7 @@
     .side-panel .pill-collapsed { gap: 8px; }
     .side-panel .pill-title { flex: 1; min-width: 0; }
     .side-panel .pill-status { flex: 0 0 auto; }
+    .side-panel .stage-pill.expanded { max-height: min(540px, 62vh); }
     .side-panel::-webkit-scrollbar { display: none; }
     .side-panel .stage-pill-wrap { position: static; width: 100%; transform: none; }
     .side-panel .hurdles-card { position: static; width: auto; animation: none; opacity: 1; }
@@ -1255,6 +1255,10 @@
     .mobile-fabs { bottom: calc(64px + 12px + 8px); }
     .fab { padding: 8px 11px; font-size: 10px; gap: 6px; }
   }
+
+  /* Trail labels sit on the mountain face beside each camp, clear of the climber */
+  .stage.side-l .stage-label { left: 20px; right: auto; transform: none; bottom: -3px; text-align: left; }
+  .stage.side-r .stage-label { left: auto; right: 20px; transform: none; bottom: -3px; text-align: right; }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
@@ -2296,6 +2300,7 @@ stages.forEach((s, i) => {
   node.className = `stage ${s.status}`;
   node.style.animationDelay = (reduceMotion ? 0 : 2300 + i * 90) + 'ms';
   node.dataset.tier = String(i % 2);
+  node.classList.add(s.svgX < 580 ? 'side-l' : s.svgX > 620 ? 'side-r' : 'side-top');
   if (i === 0) node.dataset.edge = 'start';
   if (i === stages.length - 1) node.dataset.edge = 'end';
   const numTxt = s.status === 'done' ? '✓' : s.status === 'current' ? 'NOW' : String(i + 1).padStart(2, '0');
