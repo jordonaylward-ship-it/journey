@@ -2184,7 +2184,7 @@ skyT.innerHTML = `
   <div class="st-sub">Base camp to settlement</div>`;
 skyT.querySelector('.st-name').textContent = CONFIG.clientName ? CONFIG.clientName + "'s Journey" : 'Your Journey';
 document.body.appendChild(skyT);
-positionSky();
+/* positionSky runs with the first fitScene once the camera exists */
 
 /* Sun by day, moon by night, checked every few minutes */
 const sunGrp = document.getElementById('sunGrp');
