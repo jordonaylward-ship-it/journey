@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Fund One Journey · build: party-loop · 11 Jun 2026 -->
+<!-- Fund One Journey · build: holding-state · 11 Jun 2026 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1950,22 +1950,25 @@ function dataUrl() {
   if (!base) return '';
   return base + (base.includes('?') ? '&' : '?') + 't=' + Date.now();
 }
+let SETUP_PENDING = false;   // real client link, row not published yet
 async function loadFromSheet() {
   if (!dataUrl()) return;
-  const ref = (new URLSearchParams(location.search).get('ref') || CONFIG.fileRef || '').trim().toLowerCase();
+  const urlRef = (new URLSearchParams(location.search).get('ref') || '').trim();
+  const ref = (urlRef || CONFIG.fileRef || '').trim().toLowerCase();
   if (!ref) return;
   try {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 3500);
     const res = await fetch(dataUrl(), { cache: 'no-store', signal: ctrl.signal });
     clearTimeout(timer);
-    if (!res.ok) return;
+    if (!res.ok) { if (urlRef) SETUP_PENDING = true; return; }
     const rows = parseCSV(await res.text());
-    if (rows.length < 2) return;
+    if (rows.length < 2) { if (urlRef) SETUP_PENDING = true; return; }
     const head = rows[0].map(h => h.trim().toLowerCase().replace(/\s+/g, '_'));
     const col = name => head.indexOf(name);
     const match = rows.slice(1).find(r => (r[col('ref')] || '').trim().toLowerCase() === ref);
-    if (!match) return;
+    if (!match) { if (urlRef) SETUP_PENDING = true; return; }
+    SETUP_PENDING = false;
     LAST_ROW_SNAP = JSON.stringify(match);
     const get = name => { const i = col(name); return i === -1 ? '' : (match[i] || '').trim(); };
     if (get('name')) CONFIG.clientName = get('name').slice(0, 30);
@@ -1993,10 +1996,28 @@ async function loadFromSheet() {
     if (get('status_now')) CONFIG.statusNow = get('status_now').slice(0, 90);
     if (get('theme')) CONFIG.theme = get('theme');
   } catch (err) {
+    if ((new URLSearchParams(location.search).get('ref') || '').trim()) SETUP_PENDING = true;
     console.warn('Journey: sheet not loaded, using built-in values.', err);
   }
 }
-loadFromSheet().then(initJourney);
+loadFromSheet().then(() => {
+  if (SETUP_PENDING) {
+    /* Their row hasn't published yet: clean neutral page, never demo data.
+       The 25s poll reloads into the real thing the moment it lands. */
+    CONFIG.clientName = '';
+    CONFIG.currentStage = 1;
+    CONFIG.settlementDate = '';
+    CONFIG.hurdles = [];
+    CONFIG.brokerNote = "Your page is being set up right now. It updates itself automatically, so your details will appear here within a couple of minutes.";
+    CONFIG.statusNow = 'Setting up your journey';
+    CONFIG.working = true;
+    CONFIG.hold = false;
+    CONFIG.celebrate = false;
+    CONFIG.theme = 'classic';
+    CONFIG.lastUpdated = 'just now';
+  }
+  initJourney();
+});
 
 /* ===== Live refresh: re-check the sheet every 25s, reload when the row changes ===== */
 function safeReload() {
