@@ -480,6 +480,7 @@
     background: rgba(20,30,50,0.025);
     padding: 0 10px;
   }
+  .wl-static .wl-mask { mask-image: none; -webkit-mask-image: none; }
   .wl-mask {
     height: 100%;
     overflow: hidden;
@@ -2640,6 +2641,14 @@ function selectStage(id) {
     list.style.animation = 'none';
     void list.offsetHeight;        // restart the loop from the top on stage change
     list.style.animation = '';
+    /* whole list fits in the window: show it once, hold still */
+    requestAnimationFrame(() => {
+      const win = list.closest('.wl-window');
+      if (!win) return;
+      const fits = list.scrollHeight / 2 <= win.clientHeight + 4;
+      win.classList.toggle('wl-static', fits);
+      if (fits) { list.innerHTML = rows; list.style.animation = 'none'; }
+    });
     wlWrap.style.display = 'flex';
     grid.classList.remove('single');
   } else {
