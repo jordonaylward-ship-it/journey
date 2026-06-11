@@ -2406,7 +2406,7 @@ function fitScene() {
     applyPan();
   } else {
     svg.setAttribute('preserveAspectRatio', 'none');
-    const x0 = (1200 - visW) / 2 - (vw >= 1024 ? 436 : 0) / (2 * s);
+    const x0 = (1200 - visW) / 2; // peak dead centre; the early trail runs below the floating cards
     svg.setAttribute('viewBox', `${x0} ${y0} ${visW} ${visH}`);
     /* fill the whole viewport; 'none' then stretches the art to match */
     svg.style.width = vw + 'px'; svg.style.height = vh + 'px'; svg.style.maxWidth = 'none';
