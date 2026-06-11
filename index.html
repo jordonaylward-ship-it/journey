@@ -549,13 +549,16 @@
       position: fixed; left: 18px; top: 18px; bottom: 18px; width: 400px;
       z-index: 30; display: flex; flex-direction: column; gap: 14px;
       overflow-y: auto; overflow-x: hidden; scrollbar-width: none;
+      pointer-events: none; /* empty area lets mountain clicks through */
     }
+    .side-panel > * { pointer-events: auto; }
     .side-panel .stage-pill #pillName { font-size: 15px; white-space: normal; line-height: 1.15; }
     .side-panel #pillStep { white-space: nowrap; }
     .side-panel .pill-collapsed { gap: 8px; }
     .side-panel .pill-title { flex: 1; min-width: 0; }
     .side-panel .pill-status { flex: 0 0 auto; }
-    .side-panel .stage-pill.expanded { max-height: min(640px, 70vh); }
+    .side-panel .stage-pill.expanded { max-height: min(760px, 76vh); }
+    .side-panel .wl-window { max-height: 180px; }
     .side-panel::-webkit-scrollbar { display: none; }
     .side-panel .stage-pill-wrap { position: static; width: 100%; transform: none; }
     .side-panel .hurdles-card { position: static; width: auto; animation: none; opacity: 1; }
