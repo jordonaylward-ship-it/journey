@@ -815,6 +815,7 @@
 
   /* ===== Feedback modal ===== */
   .fb-send:disabled { opacity: 0.6; cursor: default; }
+  .pill-return { display: none !important; }
   .fb-review-text { font-size: 12px; line-height: 1.55; color: var(--muted); margin: 4px 0 10px; }
   a.fb-send { display: block; text-align: center; text-decoration: none; box-sizing: border-box; }
   .fb-review { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--line-2); }
@@ -2202,7 +2203,6 @@ const skyT = document.createElement('div');
 skyT.className = 'sky-title';
 skyT.id = 'skyTitle';
 skyT.innerHTML = `
-  <div class="st-eyebrow">Fund One Expedition</div>
   <div class="st-name"></div>
   <div class="st-sub">Base camp to settlement</div>`;
 skyT.querySelector('.st-name').textContent = CONFIG.clientName ? CONFIG.clientName + "'s Journey" : 'Your Journey';
