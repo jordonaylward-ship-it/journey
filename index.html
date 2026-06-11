@@ -156,7 +156,7 @@
   /* ===== Thinking bubble over the current position ===== */
   .work-bubble {
     position: absolute;
-    top: -44px; left: 50%;
+    top: -52px; left: 50%;
     transform: translateX(-50%);
     background: rgba(255,255,255,0.95);
     border: 1px solid var(--line-2);
@@ -285,21 +285,24 @@
   /* ===== Characters ===== */
   .trekker {
     position: absolute;
-    transform: translate(-50%, -110%);
+    transform: translate(-50%, -104%);
     z-index: 6;
     pointer-events: none;
     animation: trekkerBob 1.4s ease-in-out infinite;
   }
   @keyframes trekkerBob {
-    0%,100% { transform: translate(-50%, -110%) translateY(0); }
-    50%     { transform: translate(-50%, -110%) translateY(-2px); }
+    0%,100% { transform: translate(-50%, -104%) translateY(0); }
+    50%     { transform: translate(-50%, -104%) translateY(-4px); }
   }
-  .trekker-svg { width: 32px; height: 38px; filter: drop-shadow(0 3px 4px rgba(20,30,50,0.4)); }
+  .trekker-svg { width: 70px; height: 83px; filter: drop-shadow(0 5px 7px rgba(20,30,50,0.45)); }
+  @media (max-width: 760px) {
+    .trekker-svg { width: 54px; height: 64px; }
+  }
   .trekker-tag {
-    position: absolute; top: -16px; left: 50%;
+    position: absolute; top: -21px; left: 50%;
     transform: translateX(-50%);
     font-family: 'Fraunces', serif;
-    font-style: italic; font-size: 11px; font-weight: 500;
+    font-style: italic; font-size: 14px; font-weight: 500;
     color: var(--gold);
     letter-spacing: 0.15em;
     text-shadow: 0 1px 4px rgba(255,255,255,0.9), 0 1px 8px rgba(10,20,40,0.5);
@@ -738,6 +741,7 @@
   }
 
   /* ===== Feedback modal ===== */
+  .fb-send:disabled { opacity: 0.6; cursor: default; }
   .feedback-modal {
     position: fixed;
     left: 50%; top: 50%;
@@ -1672,9 +1676,9 @@
 
 <div class="feedback-modal" id="fbModal">
   <div class="sheet-handle"></div>
-  <div class="sheet-eyebrow">Straight to management</div>
+  <div class="sheet-eyebrow">We actually read these</div>
   <h3>How are we doing?</h3>
-  <div class="fb-disc">This goes directly to management, not to Jordy. He never sees it and it has zero effect on your file, so say it exactly how it is.</div>
+  <div class="fb-disc">This goes straight through to the team and has zero effect on your file, so say it exactly how it is. The good, the bad, all of it helps.</div>
   <div class="fb-group-title g">Going well</div>
   <div id="fbGood"></div>
   <div class="fb-group-title b">Could be better</div>
@@ -1682,7 +1686,7 @@
   <button class="fb-shuffle" id="fbShuffle">↻ Show me different ones</button>
   <textarea class="fb-text" id="fbText" placeholder="Or write it in your own words"></textarea>
   <button class="fb-send" id="fbSend">Send to management</button>
-  <div class="fb-thanks" id="fbThanks">Thanks. Your email app is opening with it ready to send.</div>
+  <div class="fb-thanks" id="fbThanks">Sent. Thanks for being straight with us, it genuinely helps.</div>
 </div>
 
 <div class="stage-pill-wrap intro">
@@ -1754,7 +1758,7 @@ const CONFIG = {
   /* CONTROL PANEL: publish your Google Sheet to the web as CSV and paste that
      link here. The page then pulls each client's row by ?ref= in the URL and
      your sheet becomes the one place you update progress. Blank = off. */
-  sheetUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8cPm77VNxa0YRmfXlhyw6Rv6lFxz8nG3GzFElNjen63QuTAe9ozciRRQhl7iE8lY_fjUjiBDpitJ3/pub?gid=0&single=true&output=csv",
+  sheetUrl: "",
 
   clientName: "Sarah",                 // first name only
   fileRef: "AL-24819",
@@ -1763,10 +1767,11 @@ const CONFIG = {
   lastUpdated: "Today, 9:30am",        // shown bottom-left as a trust signal
   brokerPhone: "+61480801669",         // 0480 801 669
   brokerEmail: "jordon.aylward@ausloans.com.au",
-  feedbackEmail: "jordon.aylward@ausloans.com.au",                   // REQUIRED for the feedback button to appear. Use a management address, not your own.
+  feedbackUrl: "",                     // REQUIRED for the feedback button. Paste the Web app URL from the sheet script, it ends in /exec
   theme: "classic",                    // classic, sunset, lagoon, candy
   brokerNote: "",                      // leave blank for an automatic note matched to the current stage
   working: true,                       // true = show the live "Jordy's on your file" activity
+  hold: false,                         // true = file on hold, page shows a calm paused state
   statusNow: "",                       // optional: your actual current action, e.g. "On the phone with the lender now"
   hurdles: [
     { title: "Assessor follow up", note: "I'm checking in daily so it keeps moving", owner: "us", icon: "☎" }
@@ -1855,6 +1860,7 @@ async function loadFromSheet() {
     }
     if (['1', 'y', 'yes', 'true'].includes(get('celebrate').toLowerCase())) CONFIG.celebrate = true;
     if (col('working') !== -1) CONFIG.working = ['1', 'y', 'yes', 'true'].includes(get('working').toLowerCase());
+    if (col('hold') !== -1) CONFIG.hold = ['1', 'y', 'yes', 'true'].includes(get('hold').toLowerCase());
     if (get('status_now')) CONFIG.statusNow = get('status_now').slice(0, 90);
     if (get('theme')) CONFIG.theme = get('theme');
   } catch (err) {
@@ -1922,11 +1928,12 @@ const stages = [
 
 const FINISH_ID = stages.length;
 const SETTLED = CURRENT_ID === stages.length;
-const WORKING = CONFIG.working && !SETTLED;
+const ONHOLD = !!CONFIG.hold && !SETTLED;
+const WORKING = CONFIG.working && !SETTLED && !ONHOLD;
 
 stages.forEach(s => {
   if (s.id < CURRENT_ID) { s.status = 'done'; s.meta = 'Completed'; }
-  else if (s.id === CURRENT_ID) { s.status = 'current'; s.meta = SETTLED ? 'Complete' : 'In progress now'; }
+  else if (s.id === CURRENT_ID) { s.status = 'current'; s.meta = SETTLED ? 'Complete' : (ONHOLD ? 'On hold' : 'In progress now'); }
   else { s.status = 'future'; s.meta = 'Coming up'; }
   if (s.status === 'done') s.checklist.forEach(c => { c.done = true; c.active = false; });
   if (s.status === 'future') s.checklist.forEach(c => { c.done = false; c.active = false; });
@@ -2065,6 +2072,12 @@ $('greetSub').textContent = CONFIG.clientName
 
 /* ===== Settlement date + countdown ===== */
 (function renderEta(){
+  if (ONHOLD) {
+    $('etaLabel').textContent = 'Settlement';
+    $('etaDate').textContent = 'Paused';
+    $('etaCountdown').textContent = `Here the moment you're ready`;
+    return;
+  }
   const d = new Date(CONFIG.settlementDate + 'T00:00:00');
   if (isNaN(d)) {
     $('etaDate').textContent = 'To be confirmed';
@@ -2118,6 +2131,8 @@ if (!_note) {
   const otherT = CONFIG.hurdles.filter(h => h.owner !== 'you').map(h => h.title.toLowerCase());
   if (SETTLED) {
     _note = "Huge congrats, the keys are yours. I'm only a message away whenever you need me next.";
+  } else if (ONHOLD) {
+    _note = "Your file is safely parked for now, nothing lost and nothing forgotten. The moment you're ready, we pick up right where we left off.";
   } else if (youT.length) {
     _note = `All I need from you is your ${joinAnd(youT)}. The rest is on me, just get that across when you can.`;
   } else if (otherT.length) {
@@ -2129,9 +2144,9 @@ if (!_note) {
 $('brokerNoteDesktop').textContent = `"${_note}"`;
 $('brokerNoteMobile').textContent = `"${_note}"`;
 document.querySelectorAll('.online-tag').forEach(t => {
-  if (!(CONFIG.working && !SETTLED)) {
+  if (!WORKING) {
     t.classList.add('off');
-    t.querySelector('.ot-label').textContent = 'On call for you';
+    t.querySelector('.ot-label').textContent = ONHOLD ? 'File on hold' : 'On call for you';
   }
 });
 
@@ -2386,7 +2401,10 @@ function selectStage(id) {
   if (!s) return;
   const statusEl = $('pillStatus');
   statusEl.className = 'pill-status';
-  if (s.status === 'current') { statusEl.classList.add('s-current'); statusEl.textContent = SETTLED ? 'Complete' : 'In Progress'; }
+  if (s.status === 'current') {
+    statusEl.classList.add(ONHOLD ? 's-future' : 's-current');
+    statusEl.textContent = SETTLED ? 'Complete' : (ONHOLD ? 'On Hold' : 'In Progress');
+  }
   else if (s.status === 'done') { statusEl.classList.add('s-done'); statusEl.textContent = 'Completed'; }
   else { statusEl.classList.add('s-future'); statusEl.textContent = 'Upcoming'; }
   $('pillStep').textContent = `Stage ${s.id} of ${stages.length}`;
@@ -2975,38 +2993,38 @@ wireContact('callBtnM', 'smsBtnM', 'mailBtnM');
 
 /* ===== Feedback: rotating suggestions, straight to management ===== */
 const FB_GOOD = [
-  "jordy kept me in the loop the whole way through",
-  "honestly the easiest finance process ive been through",
-  "always picked up when i called or got straight back to me",
-  "explained everything in plain english which i really appreciated",
-  "felt like he actually cared about getting me the right deal not just any deal",
-  "super quick with updates i never had to chase",
-  "made something stressful feel pretty easy to be honest",
-  "the tracking page was a great touch loved watching it move",
-  "got me sorted way faster than i expected",
-  "really patient with all my questions never made me feel dumb",
-  "communication was spot on from day one",
-  "he was upfront about everything no surprises",
-  "felt looked after the entire time",
-  "the whole thing just ran smooth from start to finish",
-  "would happily send friends and family his way"
+  "Jordy kept me in the loop the whole way through, I always knew exactly where things were at.",
+  "Honestly the easiest finance process I've ever been through, from the first call to the last.",
+  "He always picked up when I called, and if he couldn't he got straight back to me.",
+  "Everything was explained in plain English, no jargon and no talking down to me.",
+  "It genuinely felt like he cared about getting me the right deal, not just any deal.",
+  "Updates came to me before I ever had to ask, I never once chased him.",
+  "He took something I was dreading and made it feel easy from start to finish.",
+  "The tracking page was a brilliant touch, I loved watching my file move up the mountain.",
+  "Got me sorted faster than I thought possible without ever making it feel rushed.",
+  "He was patient with every question I had and never made me feel silly for asking.",
+  "Communication was spot on from day one right through to settlement.",
+  "Completely upfront about everything, costs included, there were no surprises at any point.",
+  "I felt looked after the entire time, like my file actually mattered to someone.",
+  "The whole thing ran smoothly from start to finish, exactly how it should be.",
+  "I'd happily send my friends and family his way, and I already have a few in mind."
 ];
 const FB_BAD = [
-  "took longer than i expected to hear back at the start",
-  "i had to chase for an update a couple of times",
-  "wasnt always sure what was happening with my file",
-  "some of the paperwork felt repetitive like i sent things twice",
-  "would have liked a heads up before the timeline moved",
-  "a few things werent explained until i asked",
-  "the wait between stages felt long with no news",
-  "i got a bit confused about what i still needed to send",
-  "felt a little rushed when it came to signing",
-  "hard to get hold of him at one point",
-  "the process took more back and forth than i thought it would",
-  "i wasnt clear on the costs until late in the piece",
-  "some messages went unanswered for a day or two",
-  "expectations on timing couldve been set better early on",
-  "the start was great but it went quiet near the end"
+  "It took longer than I expected to hear back at the very start.",
+  "I had to chase for an update a couple of times when things went quiet.",
+  "There were stretches where I wasn't really sure what was happening with my file.",
+  "Some of the paperwork felt repetitive, I'm fairly sure I sent a few things twice.",
+  "I would have liked a heads up before the timeline moved, rather than finding out after.",
+  "A few things only got explained once I asked, I'd rather have known upfront.",
+  "The wait between stages felt long when there was no news coming through.",
+  "I got a bit confused about what I still needed to send and what was already done.",
+  "It felt a little rushed when it came to the signing at the end.",
+  "There was a point where he was hard to get hold of for a few days.",
+  "The process took more back and forth than I expected going in.",
+  "I wasn't clear on the costs until quite late in the piece.",
+  "A couple of my messages went unanswered for a day or two.",
+  "Expectations on timing could have been set better early on.",
+  "The start was great but it went a bit quiet near the end."
 ];
 let lastG = '', lastB = '';
 function pick3(pool, avoid) {
@@ -3047,15 +3065,37 @@ function openFb() {
 renderFb();
 $('fbShuffle').addEventListener('click', renderFb);
 ['fbOpen', 'fbOpenM'].forEach(id => { const el = $(id); el && el.addEventListener('click', openFb); });
-if (!CONFIG.feedbackEmail) {
+if (!CONFIG.feedbackUrl) {
   ['fbOpen', 'fbOpenM'].forEach(id => { const el = $(id); if (el) el.style.display = 'none'; });
 }
 $('fbSend').addEventListener('click', () => {
   const text = $('fbText').value.trim();
   if (!text) { $('fbText').focus(); return; }
-  const body = `${text}\n\nfile: ${CONFIG.fileRef}\nclient: ${CONFIG.clientName || ''}\nstage: ${CURRENT_ID} of ${stages.length}`;
-  location.href = `mailto:${CONFIG.feedbackEmail}?subject=${encodeURIComponent('Client feedback · ' + CONFIG.fileRef)}&body=${encodeURIComponent(body)}`;
-  $('fbThanks').style.display = 'block';
+  const type = FB_GOOD.includes(text) ? 'going well'
+             : FB_BAD.includes(text) ? 'could be better'
+             : 'own words';
+  const btn = $('fbSend');
+  btn.disabled = true; btn.textContent = 'Sending\u2026';
+  fetch(CONFIG.feedbackUrl, {
+    method: 'POST',
+    mode: 'no-cors',
+    body: new URLSearchParams({
+      ref: CONFIG.fileRef,
+      client: CONFIG.clientName || '',
+      stage: `${CURRENT_ID} of ${stages.length}`,
+      type: type,
+      feedback: text
+    })
+  }).catch(() => {}).finally(() => {
+    btn.disabled = false; btn.textContent = 'Send to management';
+    $('fbText').value = '';
+    document.querySelectorAll('.fb-opt').forEach(o => o.classList.remove('sel'));
+    $('fbThanks').style.display = 'block';
+    setTimeout(() => {
+      $('fbModal').classList.remove('open');
+      overlay.classList.remove('visible');
+    }, 1800);
+  });
 });
 
 /* ===== Cheer button: a little applause meter for Jordy ===== */
