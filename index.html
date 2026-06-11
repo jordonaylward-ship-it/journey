@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Fund One Journey · build: mobile-flow · 11 Jun 2026 -->
+<!-- Fund One Journey · build: mobile-polish · 11 Jun 2026 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1286,7 +1286,25 @@
     height: var(--heroH, 52vh);
     overflow: hidden;
   }
-  body.phone-flow header.hud { position: absolute; justify-content: flex-end; }
+  body.phone-flow header.hud {
+    position: absolute; justify-content: flex-end;
+    padding: 10px 12px;
+    pointer-events: none;   /* the summit dots underneath stay tappable */
+  }
+  body.phone-flow header.hud * { pointer-events: none; }
+  body.phone-flow .hud-right { gap: 6px; }
+  body.phone-flow .card {
+    padding: 5px 10px; border-radius: 11px;
+    background: rgba(255,255,255,0.78);
+    box-shadow: 0 2px 8px rgba(20,35,60,0.10);
+  }
+  body.phone-flow .weather-card { display: flex; gap: 6px; }
+  body.phone-flow .weather-card .icon { font-size: 14px; }
+  body.phone-flow .weather-card .temp { font-size: 13px; }
+  body.phone-flow .progress-card { min-width: 96px; }
+  body.phone-flow .progress-card .label { font-size: 8px; letter-spacing: 0.1em; }
+  body.phone-flow .progress-card .pct { font-size: 12px; }
+  body.phone-flow .progress-card .saved-line { display: none; }
   body.phone-flow .sky-title {
     display: block; position: absolute; top: 64px;
     left: 0 !important; width: 100%; transform: none;
@@ -1762,7 +1780,7 @@
         <div class="pct" id="progressPct">0%</div>
       </div>
       <div class="progress-bar"><div class="fill" id="progressFill"></div></div>
-      <div class="saved-line">⏱ <span id="savedHrs">0</span> hrs of legwork saved</div>
+      <div class="saved-line">⏱ <span id="savedHrs">0</span> <span id="savedHrsUnit">hrs</span> of legwork saved</div>
     </div>
   </div>
 </header>
@@ -2826,6 +2844,8 @@ document.title = `${CONFIG.clientName ? CONFIG.clientName + "'s" : 'Your'} Journ
   const el = $('savedHrs');
   if (!el) return;
   const target = Math.max(1, Math.round(SAVED_MIN / 60));
+  const unit = $('savedHrsUnit');
+  if (unit) unit.textContent = target == 1 ? 'hr' : 'hrs';
   if (reduceMotion) { el.textContent = target; return; }
   const t0 = performance.now();
   function step(now) {
