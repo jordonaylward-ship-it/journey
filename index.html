@@ -811,6 +811,10 @@
 
   /* ===== Feedback modal ===== */
   .fb-send:disabled { opacity: 0.6; cursor: default; }
+  .fb-review-text { font-size: 12px; line-height: 1.55; color: var(--muted); margin: 4px 0 10px; }
+  a.fb-send { display: block; text-align: center; text-decoration: none; box-sizing: border-box; }
+  .fb-review { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--line-2); }
+  .feedback-modal { max-height: 88vh; overflow-y: auto; }
   .feedback-modal {
     position: fixed;
     left: 50%; top: 50%;
@@ -1773,15 +1777,22 @@
   <div class="sheet-handle"></div>
   <div class="sheet-eyebrow">We actually read these</div>
   <h3>How are we doing?</h3>
-  <div class="fb-disc">This goes straight through to the team and has zero effect on your file, so say it exactly how it is. The good, the bad, all of it helps.</div>
-  <div class="fb-group-title g">Going well</div>
-  <div id="fbGood"></div>
-  <div class="fb-group-title b">Could be better</div>
-  <div id="fbBad"></div>
-  <button class="fb-shuffle" id="fbShuffle">↻ Show me different ones</button>
-  <textarea class="fb-text" id="fbText" placeholder="Or write it in your own words"></textarea>
-  <button class="fb-send" id="fbSend">Send to management</button>
-  <div class="fb-thanks" id="fbThanks">Sent. Thanks for being straight with us, it genuinely helps.</div>
+  <div class="fb-review">
+    <div class="fb-group-title g">Loving the service?</div>
+    <div class="fb-review-text">A quick public review makes a huge difference. The Ausloans reviews page will open in a new tab. <strong>Scroll down and tap the blue "Leave a Review" button.</strong> Mentioning Jordy by name makes his week.</div>
+    <a class="fb-send fb-review-btn" href="https://www.ausloans.com.au/car-loan-reviews" target="_blank" rel="noopener">⭐ Open the reviews page</a>
+  </div>
+  <div id="fbPrivate">
+    <div class="fb-disc">Or send a private note straight through to the team. It has zero effect on your file, so say it exactly how it is. The good, the bad, all of it helps.</div>
+    <div class="fb-group-title g">Going well</div>
+    <div id="fbGood"></div>
+    <div class="fb-group-title b">Could be better</div>
+    <div id="fbBad"></div>
+    <button class="fb-shuffle" id="fbShuffle">↻ Show me different ones</button>
+    <textarea class="fb-text" id="fbText" placeholder="Or write it in your own words"></textarea>
+    <button class="fb-send" id="fbSend">Send to management</button>
+    <div class="fb-thanks" id="fbThanks">Sent. Thanks for being straight with us, it genuinely helps.</div>
+  </div>
 </div>
 
 <div class="stage-pill-wrap intro">
@@ -1853,7 +1864,7 @@ const CONFIG = {
   /* CONTROL PANEL: publish your Google Sheet to the web as CSV and paste that
      link here. The page then pulls each client's row by ?ref= in the URL and
      your sheet becomes the one place you update progress. Blank = off. */
-  sheetUrl: "",
+  sheetUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8cPm77VNxa0YRmfXlhyw6Rv6lFxz8nG3GzFElNjen63QuTAe9ozciRRQhl7iE8lY_fjUjiBDpitJ3/pub?gid=0&single=true&output=csv",
 
   clientName: "Sarah",                 // first name only
   fileRef: "AL-24819",
@@ -3228,7 +3239,8 @@ renderFb();
 $('fbShuffle').addEventListener('click', renderFb);
 ['fbOpen', 'fbOpenM'].forEach(id => { const el = $(id); el && el.addEventListener('click', openFb); });
 if (!CONFIG.feedbackUrl) {
-  ['fbOpen', 'fbOpenM'].forEach(id => { const el = $(id); if (el) el.style.display = 'none'; });
+  const p = $('fbPrivate');
+  if (p) p.style.display = 'none';
 }
 $('fbSend').addEventListener('click', () => {
   const text = $('fbText').value.trim();
