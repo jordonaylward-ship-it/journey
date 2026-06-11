@@ -548,9 +548,11 @@
   @media (min-width: 1024px) {
     .side-panel {
       position: fixed; left: 18px; top: 18px; bottom: 18px; width: 340px;
-      z-index: 30; display: flex; flex-direction: column; gap: 12px;
+      z-index: 30; display: flex; flex-direction: column; gap: 14px;
       overflow-y: auto; overflow-x: hidden; scrollbar-width: none;
     }
+    .side-panel .stage-pill #pillName { font-size: 15px; white-space: normal; line-height: 1.15; }
+    .side-panel #pillStep { white-space: nowrap; }
     .side-panel::-webkit-scrollbar { display: none; }
     .side-panel .stage-pill-wrap { position: static; width: 100%; transform: none; }
     .side-panel .hurdles-card { position: static; width: auto; animation: none; opacity: 1; }
@@ -561,6 +563,21 @@
     .side-name { position: fixed; top: 12px; left: 16px; z-index: 12; }
     .sn-name { font-size: 16px; }
   }
+  .plane-x { animation: planeX 64s linear infinite; }
+  @keyframes planeX {
+    0%   { transform: translateX(-180px); }
+    48%  { transform: translateX(1380px); }
+    52%  { transform: translateX(1380px); }
+    100% { transform: translateX(-180px); }
+  }
+  .plane-face { transform-box: fill-box; transform-origin: center; animation: planeFace 64s step-end infinite; }
+  @keyframes planeFace {
+    0%   { transform: scaleX(1); }
+    50%  { transform: scaleX(-1); }
+    100% { transform: scaleX(1); }
+  }
+  .plane-bob { animation: planeBob 5.5s ease-in-out infinite; }
+  @keyframes planeBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
   .tw { animation: twink 3.2s ease-in-out infinite; }
   .tw.t2 { animation-delay: 1.1s; }
   .tw.t3 { animation-delay: 2.2s; }
@@ -1364,6 +1381,11 @@
         <ellipse cx="420" cy="170" rx="220" ry="30" fill="#e4ebf2" filter="url(#heavyBlur)" opacity="0.8"/>
         <ellipse cx="880" cy="185" rx="240" ry="32" fill="#e4ebf2" filter="url(#heavyBlur)" opacity="0.8"/>
       </g>
+      <g id="highClouds" opacity="0.55">
+        <ellipse cx="300" cy="0" rx="170" ry="14" fill="#ffffff" opacity="0.5"/>
+        <ellipse cx="760" cy="42" rx="220" ry="16" fill="#ffffff" opacity="0.4"/>
+        <ellipse cx="1060" cy="-18" rx="140" ry="12" fill="#ffffff" opacity="0.45"/>
+      </g>
       <g id="sunGrp" style="transition: opacity 2.5s ease;">
         <circle cx="870" cy="130" r="72" fill="url(#sunGlow)"/>
         <circle cx="870" cy="130" r="24" fill="#ffe9b0"/>
@@ -1380,14 +1402,16 @@
         <circle cx="908" cy="88" r="1.3" fill="#fff" class="tw t2"/>
         <circle cx="820" cy="148" r="1.4" fill="#fff" class="tw t3"/>
       </g>
-      <g id="planeGrp" transform="translate(-160,95)" opacity="0.95">
-        <g>
-          <path d="M 0 2 Q 2 0 8 0 L 30 0 Q 36 1.5 38 3 Q 36 4.5 30 5 L 8 5 Q 2 5 0 3 Z" fill="#f2f5f9"/>
-          <path d="M 5 0.5 L 1 -6 L 7 -6 L 12 0.5 Z" fill="#c2402e"/>
-          <path d="M 17 2.5 L 7 10 L 14 10 L 25 3.5 Z" fill="#d7dee8"/>
-          <rect x="11" y="1.4" width="16" height="1.5" rx="0.75" fill="#3d6c96" opacity="0.7"/>
-          <animateMotion dur="52s" repeatCount="indefinite" rotate="auto"
-            path="M 0 0 C 320 -22 640 14 960 -8 C 1180 -22 1420 6 1520 -2 C 1585 -8 1585 40 1520 36 C 1390 44 1120 22 860 40 C 540 58 240 26 0 44 C -65 48 -65 -4 0 0 Z"/>
+      <g id="planeGrp" transform="translate(0,95)" opacity="0.95">
+        <g class="plane-x">
+          <g class="plane-face">
+            <g class="plane-bob">
+              <path d="M 0 2 Q 2 0 8 0 L 30 0 Q 36 1.5 38 3 Q 36 4.5 30 5 L 8 5 Q 2 5 0 3 Z" fill="#f2f5f9"/>
+              <path d="M 5 0.5 L 1 -6 L 7 -6 L 12 0.5 Z" fill="#c2402e"/>
+              <path d="M 17 2.5 L 7 10 L 14 10 L 25 3.5 Z" fill="#d7dee8"/>
+              <rect x="11" y="1.4" width="16" height="1.5" rx="0.75" fill="#3d6c96" opacity="0.7"/>
+            </g>
+          </g>
         </g>
       </g>
       <g id="eagle" transform="translate(700,200)">
@@ -2292,26 +2316,36 @@ stageLayer.appendChild(cheerBroker);
 
 /* ===== Positioning: bottom-anchored camera that fits every screen ===== */
 /* The valley and all 16 camps stay pinned; only spare sky crops or extends. */
-let CAM = { s: 1, x0: 0, anchorY: 0, pannable: false, minX: 0, maxX: 0 };
+let CAM = { s: 1, sy: 1, x0: 0, anchorY: 0, pannable: false, minX: 0, maxX: 0 };
 let camX = null; // camera left edge in scene units; null means centre on the current stage
 function fitScene() {
   const vw = window.innerWidth, vh = window.innerHeight;
   const phone = vw < 760 && vh > vw;         // portrait phones get the zoomed, swipeable camera
   const pad = vw < 760 ? 150 : 0;            // keep the valley clear of the stage card on phones
   const anchorY = vh - pad;
-  let s;
+  let s, sy;
   if (phone) {
     s = Math.min((anchorY - 64) / 640, vw / 470); // zoom to a readable window, ~6 camps wide
+    sy = s;
   } else {
     const panelW = vw >= 1024 ? 376 : 0;          // left journey panel + gutters
-    s = Math.min((vw - panelW) / 1200, anchorY / 640); // 640 = flag tip to valley floor, must always fit
+    const fitW = (vw - panelW) / 1200;
+    const fitH = (vh - 40) / 640;
+    if (fitH <= fitW) { s = fitH; sy = fitH; }    // short, wide screens: uniform best fit
+    else {
+      s = fitW;                                   // the full mountain width is always visible
+      sy = Math.min((vh - 170) / 640, s * 1.6);   // grow tall: summit ~170px down, valley on the bottom edge
+      if (sy < s) sy = s;
+    }
   }
   const visW = vw / s;
-  const visH = vh / s;
-  const pannable = visW < 1190;
-  const y0 = 700 + pad / s - visH;
+  const visH = vh / sy;
+  const pannable = phone && visW < 1190;
+  const y0 = phone ? (700 + pad / s - visH) : (700 - visH); // valley pinned to the bottom edge
+  CAM.y0 = y0; CAM.sy = sy;
   const svg = document.getElementById('sceneSvg');
   if (pannable) {
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
     CAM.minX = -30;
     CAM.maxX = 1230 - visW;
     if (camX === null) {
@@ -2329,14 +2363,35 @@ function fitScene() {
     CAM.s = s; CAM.x0 = -30; CAM.anchorY = anchorY; CAM.pannable = true;
     applyPan();
   } else {
+    svg.setAttribute('preserveAspectRatio', 'none');
     const x0 = (1200 - visW) / 2 - (vw >= 1024 ? 376 : 0) / (2 * s);
     svg.setAttribute('viewBox', `${x0} ${y0} ${visW} ${visH}`);
-    svg.style.width = ''; svg.style.height = ''; svg.style.maxWidth = '';
+    /* fill the whole viewport; 'none' then stretches the art to match */
+    svg.style.width = vw + 'px'; svg.style.height = vh + 'px'; svg.style.maxWidth = 'none';
     svg.style.transform = ''; svg.style.willChange = '';
     stageLayer.style.transform = ''; stageLayer.style.willChange = '';
     CAM.s = s; CAM.x0 = x0; CAM.anchorY = anchorY; CAM.pannable = false;
   }
   document.body.classList.toggle('pannable', pannable);
+  positionSky();
+}
+/* Pin the sky life near the top of whatever sky this screen has */
+function positionSky() {
+  const sun = document.getElementById('sunGrp');
+  const moon = document.getElementById('moonGrp');
+  const plane = document.getElementById('planeGrp');
+  const wisps = document.getElementById('highClouds');
+  if (!sun) return;
+  const topY = CAM.y0;
+  const k = CAM.s / (CAM.sy || CAM.s);  // keeps the sky props round while the mountain stretches
+  const visW = window.innerWidth / CAM.s;
+  const sunX = CAM.x0 + visW - 210;
+  const sunY = Math.min(130, topY + 125);
+  const d = `translate(${sunX - 870}, ${sunY - 130 * k}) scale(1, ${k})`;
+  sun.setAttribute('transform', d);
+  moon.setAttribute('transform', d);
+  plane.setAttribute('transform', `translate(0, ${Math.min(40, topY + 150)}) scale(1, ${k})`);
+  wisps.setAttribute('transform', `translate(0, ${Math.min(60, topY + 80)}) scale(1, ${k})`);
 }
 function applyPan() {
   camX = Math.max(CAM.minX, Math.min(CAM.maxX, camX));
@@ -2345,7 +2400,7 @@ function applyPan() {
   stageLayer.style.transform = t;
 }
 function project(svgX, svgY) {
-  return { x: (svgX - CAM.x0) * CAM.s, y: CAM.anchorY - (700 - svgY) * CAM.s };
+  return { x: (svgX - CAM.x0) * CAM.s, y: (svgY - CAM.y0) * CAM.sy };
 }
 function positionStages() {
   stages.forEach(s => {
