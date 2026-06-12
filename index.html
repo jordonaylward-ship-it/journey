@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Fund One Journey · build: mobile-polish · 11 Jun 2026 -->
+<!-- Fund One Journey · build: settled-band · 12 Jun 2026 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1279,6 +1279,32 @@
     .stage.side-top .stage-label { bottom: 44px; }
   }
 
+  /* ===== Settled congratulations band ===== */
+  .settled-band {
+    position: absolute; left: 0; right: 0; top: 21%;
+    z-index: 5; pointer-events: none;
+    display: flex; justify-content: center;
+    padding: 13px 0;
+    background: linear-gradient(90deg,
+      rgba(246,185,50,0) 0%, rgba(246,185,50,0.93) 16%,
+      rgba(246,185,50,0.93) 84%, rgba(246,185,50,0) 100%);
+    box-shadow: 0 6px 24px rgba(246,185,50,0.25);
+    transform: translateY(-14px); opacity: 0;
+    animation: sbIn 0.9s cubic-bezier(.22,1,.36,1) 0.9s forwards;
+  }
+  .sb-inner {
+    font-weight: 800; color: #1f3a66;
+    font-size: clamp(20px, 3.4vw, 42px);
+    letter-spacing: -0.01em; line-height: 1.15;
+    text-align: center; padding: 0 20px;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+  }
+  @keyframes sbIn { to { transform: none; opacity: 1; } }
+  @media (min-width: 1024px) {
+    .settled-band { left: 356px; right: 330px; }   /* clear of the stage panel and the guide card */
+  }
+  @media (prefers-reduced-motion: reduce) { .settled-band { animation: none; transform: none; opacity: 1; } }
+
   /* ===== Portrait phones: hero scene up top, everything scrolls below ===== */
   body.phone-flow { overflow-y: auto; overflow-x: hidden; background: #edf1f6; }
   body.phone-flow #world {
@@ -1345,6 +1371,8 @@
   body.phone-flow .mobile-fabs .fab-spacer { display: none; }
   body.phone-flow .fab-hurdles { display: none; }
   body.phone-flow .updated-chip { left: 12px; bottom: 12px; z-index: 11; }
+  body.phone-flow .settled-band { top: 33%; padding: 8px 0; }
+  body.phone-flow .sb-inner { font-size: 16px; padding: 0 14px; }
   body.phone-flow .live-on .mobile-fabs,
   body.live-on.phone-flow .mobile-fabs { bottom: 12px; }
   @media (prefers-reduced-motion: reduce) {
@@ -2907,6 +2935,15 @@ const workingLines = {
   }
   setTimeout(tick, reduceMotion ? 0 : 4200);  // start once the pill has arrived
 })();
+
+/* ===== Settled: the big congratulations across the screen ===== */
+if (SETTLED) {
+  const band = document.createElement('div');
+  band.className = 'settled-band';
+  const who = CONFIG.clientName ? `, ${CONFIG.clientName}` : '';
+  band.innerHTML = `<div class="sb-inner">Congratulations, you're all settled${who}!</div>`;
+  document.getElementById('world').appendChild(band);
+}
 
 /* ===== Milestone toast: Pre-Approved and Full Approval announce themselves.
    The looping fireworks, confetti and streamers run from the particle loop. ===== */
