@@ -4,447 +4,449 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Jordy">
+<meta name="apple-mobile-web-app-title" content="Shrink">
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
-<title>Jordy</title>
-<style>
-:root{--bg:#f5f5f7;--surface:#fff;--text:#1d1d1f;--sec:#6e6e73;--accent:#0071e3;--hair:#d2d2d7;--fill:#e8e8ed;--green:#34c759;--amber:#ff9f0a;--red:#ff3b30;--tab:rgba(245,245,247,.84);--r:18px}
-@media (prefers-color-scheme:dark){:root{--bg:#000;--surface:#1c1c1e;--text:#f5f5f7;--sec:#a1a1a6;--accent:#2997ff;--hair:#38383a;--fill:#2c2c2e;--green:#30d158;--amber:#ffd60a;--red:#ff453a;--tab:rgba(28,28,30,.84)}}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);font-size:17px;line-height:1.47;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
-.wrap{max-width:640px;margin:0 auto;padding:28px 20px calc(100px + env(safe-area-inset-bottom))}
-.greet{font-size:34px;font-weight:700;letter-spacing:-.022em;line-height:1.1}
-.sub{color:var(--sec);margin-top:6px}
-.card{background:var(--surface);border-radius:var(--r);padding:22px 20px;margin-top:16px}
-.card h2{font-size:22px;font-weight:600;letter-spacing:-.015em;line-height:1.2}
-.card h3{font-size:17px;font-weight:600;margin-top:18px}
-.card p{margin-top:8px}
-.muted{color:var(--sec)}
-.small{font-size:14px}
-.btn{appearance:none;border:0;font:inherit;font-weight:600;font-size:17px;padding:14px 18px;border-radius:14px;cursor:pointer;background:var(--accent);color:#fff;width:100%;margin-top:16px}
-.btn.sec{background:var(--fill);color:var(--text)}
-.btn.ghost{background:transparent;color:var(--accent);width:auto;padding:12px 6px;margin-top:0}
-.btn.danger{background:transparent;color:var(--red)}
-.btn:active{opacity:.7}
-.nav{display:flex;justify-content:space-between;align-items:center;margin-top:20px;gap:12px}
-.nav .btn{margin-top:0}
-.nav .btn:not(.ghost){flex:1}
-.choice{display:grid;gap:10px;margin-top:18px}
-.choice button{appearance:none;font:inherit;font-size:17px;text-align:left;padding:16px 18px;border-radius:14px;border:1.5px solid var(--hair);background:var(--surface);color:var(--text);cursor:pointer}
-.choice button.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--surface))}
-.big{font-size:84px;font-weight:700;letter-spacing:-.04em;line-height:1;text-align:center;margin:22px 0 8px;font-variant-numeric:tabular-nums}
-.ends{display:flex;justify-content:space-between;color:var(--sec);font-size:14px;margin-top:6px}
-input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:30px;background:transparent;margin:8px 0 0}
-input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:var(--hair)}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.28);margin-top:-12px;cursor:pointer}
-input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:var(--hair)}
-input[type=range]::-moz-range-thumb{width:28px;height:28px;border:0;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.28)}
-textarea,input[type=text]{width:100%;font:inherit;font-size:17px;padding:14px 16px;border-radius:14px;border:1.5px solid var(--hair);background:var(--surface);color:var(--text);margin-top:14px;resize:vertical}
-textarea:focus,input:focus{outline:none;border-color:var(--accent)}
-label.f{display:block;margin-top:14px;font-size:14px;color:var(--sec)}
-label.f input{margin-top:6px}
-.dots{display:flex;gap:6px;margin-bottom:16px}
-.dots i{width:6px;height:6px;border-radius:3px;background:var(--hair);transition:width .2s}
-.dots i.on{background:var(--accent);width:18px}
-.fc{border-radius:var(--r);padding:22px 20px;margin-top:16px}
-.fc.low{background:color-mix(in srgb,var(--green) 14%,var(--surface))}
-.fc.medium{background:color-mix(in srgb,var(--amber) 18%,var(--surface))}
-.fc.high{background:color-mix(in srgb,var(--red) 14%,var(--surface))}
-.fc h2{font-size:26px;font-weight:700;letter-spacing:-.02em;margin-top:2px}
-.fc p{margin-top:8px}
-.stat{display:flex;justify-content:space-between;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--hair);gap:12px}
-.stat:last-child{border-bottom:0}
-.stat b{font-size:22px;font-weight:600;letter-spacing:-.01em;font-variant-numeric:tabular-nums;white-space:nowrap}
-.bars{display:flex;gap:5px;align-items:flex-end;height:90px;margin-top:18px}
-.bars div{flex:1;border-radius:4px 4px 2px 2px;background:var(--accent);min-height:3px}
-.bars div.hot{background:var(--red)}
-.bars div.warm{background:var(--amber)}
-.bars div.none{background:var(--fill)}
-.lbl{display:flex;gap:5px;margin-top:6px}
-.lbl span{flex:1;text-align:center;font-size:11px;color:var(--sec)}
-.issue{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--hair);align-items:flex-start}
-.issue:last-child{border-bottom:0}
-.issue .n{font-size:22px;font-weight:700;letter-spacing:-.02em;width:26px;color:var(--sec);flex:none;font-variant-numeric:tabular-nums}
-.issue .t{font-weight:600}
-.issue .d{color:var(--sec);font-size:15px}
-.pill{display:inline-block;font-size:13px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--fill);color:var(--sec);margin-top:6px}
-.line{font-size:24px;font-weight:600;letter-spacing:-.015em;padding:14px 0;border-bottom:1px solid var(--hair);line-height:1.2}
-.line:last-child{border-bottom:0}
-.say{padding:12px 0;border-bottom:1px solid var(--hair)}
-.say:last-child{border-bottom:0}
-.timer{font-size:76px;font-weight:700;letter-spacing:-.04em;text-align:center;margin:14px 0 4px;font-variant-numeric:tabular-nums;line-height:1}
-.center{text-align:center}
-a{color:var(--accent);text-decoration:none}
-.tel{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--hair);gap:12px}
-.tel:last-child{border-bottom:0}
-.tel a{font-weight:600;white-space:nowrap}
-.row{display:flex;gap:10px}
-.row .btn{margin-top:12px}
-.tabbar{position:fixed;left:0;right:0;bottom:0;background:var(--tab);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-top:1px solid var(--hair);padding:8px 0 calc(8px + env(safe-area-inset-bottom));z-index:10}
-.tabbar .in{max-width:640px;margin:0 auto;display:flex}
-.tabbar button{flex:1;appearance:none;border:0;background:transparent;font:inherit;font-size:10px;font-weight:500;color:var(--sec);display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;cursor:pointer}
-.tabbar button.on{color:var(--accent)}
-.tabbar svg{width:26px;height:26px}
-pre{white-space:pre-wrap;font:inherit;font-size:15px;background:var(--fill);padding:14px 16px;border-radius:14px;margin-top:14px;line-height:1.5}
-.hidden{display:none}
-@media (prefers-reduced-motion:no-preference){.q{animation:in .22s ease-out both}@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}}
-</style>
+<style>:root{color-scheme:light}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
-<div class="wrap" id="view"></div>
-<nav class="tabbar"><div class="in" id="tabs"></div></nav>
-<input type="file" id="file" accept="application/json" class="hidden">
+<title>Jordy's Shrink</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one column, Apple system type. The search pill is the hero. A session is a plain transcript with a pinned composer. */
+:root{
+  --bg:#f5f5f7; --surface:#ffffff; --fg:#1d1d1f; --sec:#6e6e73; --accent:#0071e3;
+  --hair:#d2d2d7; --fill:#e8e8ed; --bubble:#e9e9eb; --red:#ff3b30;
+  --shadow:0 2px 14px rgba(0,0,0,.08);
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#000000; --surface:#1c1c1e; --fg:#f5f5f7; --sec:#a1a1a6; --accent:#2997ff;
+    --hair:#38383a; --fill:#2c2c2e; --bubble:#26252a; --red:#ff453a;
+    --shadow:0 2px 14px rgba(0,0,0,.55); color-scheme:dark
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#000000; --surface:#1c1c1e; --fg:#f5f5f7; --sec:#a1a1a6; --accent:#2997ff;
+  --hair:#38383a; --fill:#2c2c2e; --bubble:#26252a; --red:#ff453a;
+  --shadow:0 2px 14px rgba(0,0,0,.55); color-scheme:dark
+}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:17px;line-height:1.47;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+*{box-sizing:border-box}
+.wrap{max-width:680px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 32px}
+.home{padding-top:clamp(36px,16vh,130px)}
+h1{font-size:40px;font-weight:700;letter-spacing:-.03em;line-height:1.08;margin:0;text-wrap:balance}
+.sub{color:var(--sec);font-size:19px;margin:8px 0 28px}
+.pill{display:flex;align-items:flex-end;gap:8px;background:var(--surface);border:1px solid var(--hair);border-radius:30px;box-shadow:var(--shadow);padding:8px 8px 8px 18px;min-height:58px;transition:box-shadow .15s,border-color .15s}
+.pill:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 18%,transparent),var(--shadow)}
+.pill .mag{width:22px;height:22px;color:var(--sec);flex:none;margin:9px 0}
+.pill textarea{flex:1;min-width:0;border:0;background:transparent;color:var(--fg);font:inherit;font-size:19px;line-height:1.35;resize:none;outline:none;padding:9px 0;max-height:170px;overflow-y:auto}
+.pill textarea::placeholder{color:var(--sec)}
+.send,.stop{width:40px;height:40px;border-radius:50%;border:0;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;color:#fff;background:var(--accent);transition:opacity .15s}
+.send[disabled]{opacity:.3;cursor:default}
+.stop{background:var(--fg);color:var(--bg)}
+.send svg,.stop svg{width:20px;height:20px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{appearance:none;border:0;font:inherit;font-size:15px;padding:8px 14px;border-radius:999px;background:var(--fill);color:var(--fg);cursor:pointer}
+.chip:active{opacity:.7}
+.block{margin-top:40px}
+.label{font-size:13px;color:var(--sec);font-weight:500;letter-spacing:.02em;text-transform:uppercase}
+.block p{margin:6px 0 0}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--hair);cursor:pointer}
+.row:last-child{border-bottom:0}
+.row .t{font-weight:600}
+.row .d{color:var(--sec);font-size:15px;margin-top:2px}
+.row .chev{color:var(--hair);flex:none;width:18px;height:18px}
+.links{display:flex;gap:22px;margin-top:40px}
+.tbtn{appearance:none;border:0;background:transparent;color:var(--accent);font:inherit;font-size:17px;font-weight:500;padding:6px 0;cursor:pointer}
+.tbtn.danger{color:var(--red)}
+.tbtn:disabled{color:var(--sec);cursor:default}
+.tbtn:focus-visible,.chip:focus-visible,.send:focus-visible,.stop:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.foot{margin-top:56px;color:var(--sec);font-size:14px}
+.foot b{font-weight:600;color:var(--fg);user-select:all;-webkit-user-select:all}
+.note{color:var(--sec);font-size:14px;min-height:20px;margin-top:10px}
+.note.err{color:var(--red)}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding-block:10px;z-index:5;min-height:52px}
+.bar .title{font-weight:600;font-size:17px;color:var(--sec)}
+.msgs{display:flex;flex-direction:column;gap:16px;padding-top:12px;padding-bottom:150px}
+.msg{white-space:pre-wrap;overflow-wrap:anywhere;min-width:0;max-width:100%}
+.msg.me{align-self:flex-end;background:var(--bubble);border-radius:20px;padding:10px 16px;max-width:84%;font-size:17px}
+.msg.them{font-size:18px;line-height:1.5;max-width:62ch}
+.thinking{color:var(--sec)}
+@media (prefers-reduced-motion:no-preference){
+  .thinking{animation:pulse 1.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.45}50%{opacity:1}}
+}
+.composer{position:fixed;left:0;right:0;bottom:0;z-index:6;padding:14px max(16px,env(safe-area-inset-left,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-right,0px));background:linear-gradient(to top,var(--bg) 72%,transparent)}
+.composer .in{max-width:680px;margin:0 auto}
+.composer .pill{min-height:52px;border-radius:26px}
+.composer textarea{font-size:17px}
+.composer .note{margin-top:6px;min-height:0}
+.memo{width:100%;min-height:62vh;font:inherit;font-size:16px;line-height:1.5;padding:16px;border-radius:18px;border:1px solid var(--hair);background:var(--surface);color:var(--fg);resize:vertical;outline:none}
+.memo:focus{border-color:var(--accent)}
+.meta{color:var(--sec);font-size:14px;margin:4px 0 12px}
+.empty{color:var(--sec);padding:24px 0}
+</style>
+
+<main id="home" class="wrap home">
+  <h1 id="greet">Good morning, Jordy.</h1>
+  <p class="sub" id="homeSub">What's on your mind?</p>
+  <form id="homeForm" class="pill">
+    <svg class="mag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+    <textarea id="homeBox" rows="1" placeholder="Say anything" aria-label="Say anything" autocomplete="off"></textarea>
+    <button class="send" id="homeSend" type="submit" disabled aria-label="Start"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+  </form>
+  <div class="chips" id="chips">
+    <button class="chip" type="button" data-say="I'm anxious and I don't know why">I'm anxious</button>
+    <button class="chip" type="button" data-say="Something's off with Bonnie">Something with Bonnie</button>
+    <button class="chip" type="button" data-say="I lost my patience with Luna">Luna</button>
+    <button class="chip" type="button" data-say="Nothing's wrong, just checking in">Just checking in</button>
+  </div>
+  <div class="note" id="homeNote"></div>
+  <div id="homeBlocks"></div>
+  <div class="links">
+    <button class="tbtn" type="button" data-act="profile">Memory</button>
+    <button class="tbtn" type="button" data-act="history">Sessions</button>
+  </div>
+  <p class="foot">If it's past a seven and you can't bring it down, MensLine is 24 hours. <b>1300 78 99 78</b></p>
+</main>
+
+<main id="session" class="wrap" hidden>
+  <div class="bar">
+    <span class="title" id="sessTitle">Session</span>
+    <button class="tbtn" type="button" data-act="end" id="endBtn">Done</button>
+  </div>
+  <div class="msgs" id="msgs"></div>
+  <div class="composer">
+    <div class="in">
+      <form id="sessForm" class="pill">
+        <textarea id="sessBox" rows="1" placeholder="Say it" aria-label="Say it" autocomplete="off"></textarea>
+        <button class="send" id="sessSend" type="submit" disabled aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+        <button class="stop" id="sessStop" type="button" hidden aria-label="Stop"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg></button>
+      </form>
+      <div class="note" id="sessNote"></div>
+    </div>
+  </div>
+</main>
+
+<main id="profile" class="wrap" hidden>
+  <div class="bar">
+    <button class="tbtn" type="button" data-act="home">Back</button>
+    <span class="title">Memory</span>
+    <button class="tbtn" type="button" data-act="saveProfile" id="saveProfile">Save</button>
+  </div>
+  <p class="meta" id="profMeta">What it knows about you. It rewrites this after every session. You can change anything.</p>
+  <textarea class="memo" id="profText" aria-label="What it knows about you"></textarea>
+  <div class="note" id="profNote"></div>
+  <button class="tbtn danger" type="button" data-act="restoreProfile" id="restoreBtn">Restore the previous version</button>
+</main>
+
+<main id="history" class="wrap" hidden>
+  <div class="bar">
+    <button class="tbtn" type="button" data-act="home">Back</button>
+    <span class="title">Sessions</span>
+    <span></span>
+  </div>
+  <div id="sessList"></div>
+</main>
+
+<main id="read" class="wrap" hidden>
+  <div class="bar">
+    <button class="tbtn" type="button" data-act="history">Back</button>
+    <span class="title" id="readTitle"></span>
+    <span></span>
+  </div>
+  <div class="msgs" id="readMsgs" style="padding-bottom:40px"></div>
+</main>
+
 <script>
 (function(){
-const KEY='jordy.shrink.v1';
+const $=s=>document.querySelector(s);
 const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MON=['January','February','March','April','May','June','July','August','September','October','November','December'];
-const LINES=['This is old.','Not my one.',"It's noise, not an emergency.",'Nothing is required of me right now.'];
-const ISSUES=[
- {id:'control',t:'Control as safety',d:'Tracking every piece. Unchecked feels like chaos.'},
- {id:'anger',t:'Anger when control slips',d:'Shame first, then it fires at whoever is closest.'},
- {id:'asking',t:'Never asking',d:'Take the load, say nothing, resent it later.'},
- {id:'comfort',t:'Cannot take comfort',d:'She reaches, you go stiff.'},
- {id:'runaway',t:'Running away',d:'Leaving thoughts when the pressure peaks.'},
- {id:'overthink',t:'Overthinking under uncertainty',d:'Gut goes quiet, so you gather data forever.'},
- {id:'wound',t:'The wound',d:'Grew up alone with it. Nobody came. The root of the rest.'}
-];
-let S=load()||{name:'Jordy',partner:'Bonnie',kid:'Luna',entries:{},notes:'',timerEnd:null};
-if(!S.entries)S.entries={};
-if(!S.partner)S.partner='Bonnie';
-if(!S.kid)S.kid='Luna';
-let tab='today',flow=null,exportText='';
+const FALLBACK='Jordy, 34, finance broker on the Gold Coast, works from home on commission. Wife Bonnie. Daughter Luna, four. His full profile loads from memory when memory is available. Until then, ask.';
 
-function load(){try{const r=localStorage.getItem(KEY);return r?JSON.parse(r):null}catch(e){return null}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
-function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function pad(n){return (n<10?'0':'')+n}
-function keyOf(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
-function fromKey(k){const p=k.split('-');return new Date(+p[0],+p[1]-1,+p[2])}
-function todayKey(){return keyOf(new Date())}
-function num(v){return typeof v==='number'&&!isNaN(v)}
-function avg(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:null}
-function r1(n){return Math.round(n*10)/10}
-function lastKeys(n){const o=[];for(let i=n-1;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);o.push(keyOf(d))}return o}
-function rows(n){return lastKeys(n).map(k=>({k,d:fromKey(k),e:S.entries[k]||{}}))}
-function greet(){const h=new Date().getHours();return h<12?'Good morning':h<17?'Good afternoon':'Good evening'}
-function fmtDate(d){return DAYS[d.getDay()]+' '+d.getDate()+' '+MON[d.getMonth()]}
-function fmtTime(ts){const d=new Date(ts);let h=d.getHours();const m=pad(d.getMinutes());const ap=h>=12?'pm':'am';h=h%12||12;return h+':'+m+ap}
-function dayIndex(){return Math.floor(Date.now()/86400000)}
+const RULES=`You are Jordy's shrink. Not a chatbot, not a coach, not a cheerleader. A straight talking therapist who knows him well and talks like a real person. He opens this page when something is on his mind and types whatever it is. You take it from there.
 
-function stats(n){
- n=n||14;
- const R=rows(n);
- const E=R.filter(r=>r.e.e);
- const A=E.filter(r=>num(r.e.e.anger));
- const grp=f=>A.filter(f).map(r=>r.e.e.anger);
- const lowSleep=grp(r=>r.e.m&&num(r.e.m.sleep)&&r.e.m.sleep<6.5);
- const okSleep=grp(r=>r.e.m&&num(r.e.m.sleep)&&r.e.m.sleep>=6.5);
- const lowTank=grp(r=>r.e.m&&num(r.e.m.tank)&&r.e.m.tank<=4);
- const okTank=grp(r=>r.e.m&&num(r.e.m.tank)&&r.e.m.tank>4);
- const byDay={};A.forEach(r=>{const w=r.d.getDay();(byDay[w]=byDay[w]||[]).push(r.e.e.anger)});
- let worst=null;Object.keys(byDay).forEach(w=>{const a=avg(byDay[w]);if(byDay[w].length>=2&&(!worst||a>worst.avg))worst={day:+w,avg:a,n:byDay[w].length}});
- const climbed=A.filter(r=>r.e.e.anger>=6);
- const c={
-  control:E.filter(r=>r.e.e.audit==='yes').length,
-  anger:climbed.length,
-  asking:E.filter(r=>r.e.e.yesNo==='caved').length,
-  comfort:E.filter(r=>r.e.e.comfort==='out').length,
-  runaway:E.filter(r=>r.e.e.runaway==='yes').length,
-  overthink:E.filter(r=>r.e.e.overthink==='yes').length
- };
- return{
-  n,days:R.filter(r=>r.e.m||r.e.e).length,nE:E.length,
-  sleep:avg(R.filter(r=>r.e.m&&num(r.e.m.sleep)).map(r=>r.e.m.sleep)),
-  tank:avg(R.filter(r=>r.e.m&&num(r.e.m.tank)).map(r=>r.e.m.tank)),
-  anger:avg(A.map(r=>r.e.e.anger)),
-  lowSleep:{n:lowSleep.length,avg:avg(lowSleep)},okSleep:{n:okSleep.length,avg:avg(okSleep)},
-  lowTank:{n:lowTank.length,avg:avg(lowTank)},okTank:{n:okTank.length,avg:avg(okTank)},
-  worst,c,
-  held:E.filter(r=>r.e.e.yesNo==='held').length,
-  offered:E.filter(r=>r.e.e.comfort==='in'||r.e.e.comfort==='out').length,
-  landed:E.filter(r=>r.e.e.comfort==='in').length,
-  climbed:climbed.length,tapped:climbed.filter(r=>r.e.e.tapped==='yes').length,
-  outside:E.filter(r=>r.e.e.outside==='yes').length,outsideAsked:E.filter(r=>r.e.e.outside==='yes'||r.e.e.outside==='no').length,
-  bedMe:E.filter(r=>r.e.e.bedWho==='me').length,bedPartner:E.filter(r=>r.e.e.bedWho==='partner').length,bedBoth:E.filter(r=>r.e.e.bedWho==='both').length,
-  bedRough:E.filter(r=>r.e.e.bedHow==='rough'||r.e.e.bedHow==='blew').length,
-  goods:E.filter(r=>r.e.e.good).map(r=>r.e.e.good),
-  notes:E.filter(r=>r.e.e.note).map(r=>({k:r.k,t:r.e.e.note}))
- };
+How you talk
+Short. Most replies are three to six sentences. He gets overwhelmed by long replies and has said so. Go longer only when he asks for detail or a script.
+Plain English. No jargon, no therapy speak. Never say things like I hear you, that sounds really hard, thank you for sharing, I'm here for you.
+No dashes of any kind, no brackets, no bullet points, no numbered lists, no headings, no bold, no emoji, no markdown. Short paragraphs with a blank line between them.
+Australian spelling. Casual. Mate now and then, not every message. Swearing only if he does first, and rarely.
+Direct. Don't sugar coat, don't pad, don't hedge. Say the thing.
+Don't ask permission and don't offer menus of options. Make the call and tell him.
+Don't start with a greeting or a recap of what he said. Start with the read.
+
+What a reply does
+Usually three things, in this order. Name what you actually see, the pattern underneath the words, not just the words. Give one practical move or reframe he can use today. Ask one question. Never more than one question. Sometimes the right move is no question.
+When he can't name what he's feeling or seems overwhelmed, give him three short options to pick from, each on its own line with no numbering, and ask which one fits.
+Use what you know about him. Connect what he's saying now to his patterns and his history when it fits, and name the pattern by its number from his list when it is one. Don't recite his file back at him.
+Hold him to account, kindly. When he's doing one of his patterns inside the message itself, point at it. When he blames Bonnie or Luna for his state, give him his part without letting him off the hook and without running them down. When the leaving thought shows up, name it as the escape hatch and remind him nothing gets decided from empty.
+When he's done a real rep, say so in one line and move on. No fuss.
+Ask about the body early if it fits. Sleep, food, where the tank is. Most of his bad nights start empty.
+Don't diagnose him or anyone else. Don't put labels on Bonnie.
+If he pushes back on a read, take it seriously. He's usually right when he does.
+Never mention being an AI, a model, or this page. Don't tell him you're not a real therapist in every message, he knows. Once a session at most, if it fits, point him at the real help he hasn't taken up yet.
+If he says he's done, or bye, say one line and stop. No sign off speech.
+
+Safety
+If he describes losing it physically with Luna or Bonnie, or being about to, or says he's a danger to anyone, or talks about not wanting to be here, drop everything else. Give the numbers plainly, once. MensLine 1300 78 99 78, any hour. Men's Referral Service 1300 766 491, any hour. If anyone is in danger right now, 000. Then stay with him.
+He has been referred to the men's behaviour change program on the Gold Coast, 07 5591 4222, and has not rung it. Bring it up when it's relevant, not every session.`;
+
+let hasClaude=!!(window.claude&&typeof window.claude.use==='function');
+let db=null,sample=null,sampleP=null,profile=null,sessions=[],session=null,ctl=null,busy=false,view='home',saveChain=Promise.resolve(),restoreArmed=false;
+
+function iso(){return new Date().toISOString()}
+function newId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
+function fmtDate(s){const d=new Date(s);return DAYS[d.getDay()].slice(0,3)+' '+d.getDate()+' '+MON[d.getMonth()].slice(0,3)}
+function fmtTime(d){let h=d.getHours();const m=('0'+d.getMinutes()).slice(-2);const ap=h>=12?'pm':'am';h=h%12||12;return h+':'+m+ap}
+function greetWord(){const h=new Date().getHours();return h<12?'Good morning':h<17?'Good afternoon':'Good evening'}
+function todayLine(){const d=new Date();return DAYS[d.getDay()]+' '+d.getDate()+' '+MON[d.getMonth()]}
+
+function go(v){view=v;['home','session','profile','history','read'].forEach(id=>{$('#'+id).hidden=(id!==v)});window.scrollTo(0,0)}
+function note(id,msg,err){const el=$('#'+id);if(!el)return;el.textContent=msg||'';el.classList.toggle('err',!!err)}
+function autosize(t){t.style.height='auto';t.style.height=Math.min(t.scrollHeight,170)+'px'}
+function scrollEnd(){window.scrollTo(0,document.body.scrollHeight)}
+
+function copyFor(c){
+  switch(c){
+    case 'not_granted':return 'You have not allowed this page to use Claude. Reload and allow it when it asks.';
+    case 'rate_limited':return 'Claude is busy or you have hit your limit. Give it a minute and send again.';
+    case 'session_expired':return 'Sign in to Claude again, then reload.';
+    case 'refused':return 'Claude would not answer that one. Say it a different way.';
+    case 'prompt_too_large':return 'This session has got too long. Hit Done and start a fresh one.';
+    case 'empty_completion':return 'Nothing came back. Say it again with a bit more.';
+    case 'invalid_json':return 'Could not read the summary. The session is saved anyway.';
+    case 'sampling_disabled':case 'not_declared':case 'capability_disabled':case 'capability_removed':return 'Claude is not available on this page right now.';
+    case 'upstream_error':return 'Connection dropped. Send that again.';
+    default:return 'Something went wrong. Try again.';
+  }
 }
 
-function forecast(k){
- const e=S.entries[k];if(!e||!e.m)return null;
- const m=e.m;let score=0;const why=[];
- if(num(m.sleep)){if(m.sleep<6){score+=2;why.push('short sleep')}else if(m.sleep<7){score+=1;why.push('lightish sleep')}}
- if(num(m.tank)){if(m.tank<=3){score+=2;why.push('tank near empty')}else if(m.tank<=5){score+=1;why.push('tank low')}}
- if(m.ate==='no'){score+=1;why.push('nothing proper to eat')}
- const st=stats();const w=fromKey(k).getDay();
- if(st.worst&&st.worst.day===w&&st.worst.avg>=5){score+=1;why.push(DAYS[w]+'s have been your rough day')}
- const y=fromKey(k);y.setDate(y.getDate()-1);const ye=S.entries[keyOf(y)];
- if(ye&&ye.e&&num(ye.e.anger)&&ye.e.anger>=7){score+=1;why.push('last night ran hot')}
- let level='low',title='Normal night',line='Keep the routine. Nothing to plan.';
- if(score>=4){level='high';title='High risk tonight';line='Hand over bedtime if you can. Headphones ready. Leave the room before it climbs, not after.'}
- else if(score>=2){level='medium';title='Watch tonight';line='Decide your tap out now, not at eight. Eat properly before bedtime.'}
- return{level,title,line,why,score};
+function systemTurn(){
+  const d=new Date();
+  const recent=sessions.filter(s=>s.endedAt&&s.summary&&(!session||s.id!==session.id)).slice(0,6).map(s=>fmtDate(s.startedAt)+': '+s.summary).join('\n')||'None yet.';
+  return RULES+'\n\nRIGHT NOW\n'+DAYS[d.getDay()]+' '+d.getDate()+' '+MON[d.getMonth()]+' '+d.getFullYear()+', '+fmtTime(d)+'.\n\nWHAT YOU KNOW ABOUT HIM\n'+((profile&&profile.notes)||FALLBACK)+'\n\nRECENT SESSIONS, newest first\n'+recent+'\n\nThe session starts now. Everything after this is Jordy talking to you. Reply as his shrink, in plain text.';
+}
+function closePrompt(s){
+  const t=s.turns.map(x=>(x.role==='user'?'Jordy: ':'Shrink: ')+x.content).join('\n\n');
+  return 'You are the shrink who keeps a running profile on Jordy. Below is the profile as it stands, then the transcript of the session that just ended on '+fmtDate(s.startedAt)+'.\n\nReply with only JSON shaped like {"summary": "...", "profile": "..."}.\nsummary: one or two plain sentences in the third person, past tense, what the session was about and where it landed. No dashes.\nprofile: the full updated profile text. Keep the same headings and every line that is still true. Change only what this session showed is now wrong or has moved on. Add anything genuinely new about him, his patterns, his family, or what works and what does not, under the right heading. Rewrite the CURRENT THREADS section so it is short and current, dated with this month and year. Under 900 words. Plain text with line breaks. No markdown, no dashes, no brackets, no bullet points.\n\nPROFILE\n'+((profile&&profile.notes)||FALLBACK)+'\n\nTRANSCRIPT\n'+t;
 }
 
-function reflect(e){
- const v=e.e||{},m=e.m||{},out=[];
- if(num(v.anger)&&v.anger>=8)out.push('That was a big one. The support numbers are under Tools. Use them tonight, not next week.');
- if(num(v.anger)&&v.anger>=6&&v.tapped==='yes')out.push('It climbed and you tapped out. That is the rep.');
- if(num(v.anger)&&v.anger>=6&&v.tapped==='no')out.push('It climbed and you stayed in it. Tomorrow, leave the room earlier.');
- if(v.comfort==='in')out.push('You let it land. Hardest rep on the list.');
- if(v.runaway==='yes')out.push('The leaving thought showed up. It comes when you are empty. Nothing gets decided from here.');
- if(v.yesNo==='caved')out.push('One yes you did not mean. Tomorrow find one clean no.');
- if(v.yesNo==='held')out.push('You held a no. Notice you survived it.');
- if(num(m.sleep)&&m.sleep<6)out.push('Short sleep. Tonight the job is bed, not fixing anything.');
- if(v.bedHow==='blew')out.push('Bedtime went wrong. Repair it first thing. Short, own it, done.');
- if(!out.length)out.push('Nothing flagged. A normal day is a win here.');
- return out.slice(0,3);
+function renderHome(){
+  $('#greet').textContent=greetWord()+', Jordy.';
+  $('#homeSub').textContent=todayLine()+'. What\'s on your mind?';
+  const b=$('#homeBlocks');b.innerHTML='';
+  const open=sessions.find(s=>!s.endedAt&&s.turns&&s.turns.length>1);
+  if(open){
+    const d=document.createElement('div');d.className='block';
+    d.innerHTML='<div class="label">Unfinished</div><div class="row" data-act="continue"><div><div class="t">Pick up where you left off</div><div class="d"></div></div><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></div>';
+    d.querySelector('.d').textContent=fmtDate(open.startedAt)+', '+open.opener.slice(0,90);
+    b.appendChild(d);
+  }
+  const last=sessions.find(s=>s.endedAt);
+  if(last){
+    const d=document.createElement('div');d.className='block';
+    d.innerHTML='<div class="label">Last time</div><p></p><p class="meta" style="margin-top:4px"></p>';
+    d.querySelector('p').textContent=last.summary||last.opener;
+    d.querySelector('.meta').textContent=fmtDate(last.startedAt);
+    b.appendChild(d);
+  }
+  if(!db&&hasClaude){const d=document.createElement('p');d.className='meta';d.style.marginTop='28px';d.textContent='Memory is off in this view. Sessions here are not saved.';b.appendChild(d)}
 }
 
-function rankedIssues(){
- const st=stats();
- const list=ISSUES.filter(i=>i.id!=='wound').map((i,idx)=>Object.assign({},i,{n:st.c[i.id]||0,idx}));
- list.sort((a,b)=>b.n-a.n||a.idx-b.idx);
- list.push(Object.assign({},ISSUES[6],{n:null}));
- return{list,st};
+function addMsg(container,role,text){
+  const el=document.createElement('div');el.className='msg '+(role==='user'?'me':'them');el.textContent=text;container.appendChild(el);return el;
+}
+function renderTurns(){
+  const m=$('#msgs');m.innerHTML='';
+  if(!session)return;
+  session.turns.forEach(t=>addMsg(m,t.role,t.content));
+  $('#sessTitle').textContent=fmtDate(session.startedAt)+', '+fmtTime(new Date(session.startedAt));
+}
+function setBusy(on){
+  busy=on;
+  $('#sessSend').hidden=on;$('#sessStop').hidden=!on;
+  $('#sessBox').disabled=on;$('#endBtn').disabled=false;
 }
 
-function morningQs(){return[
- {id:'sleep',type:'slider',min:0,max:10,step:0.5,def:7,text:'How many hours did you sleep?',lo:'None',hi:'Ten plus',fmt:v=>v},
- {id:'ate',type:'choice',text:'Eaten properly this morning?',opts:[['yes','Yes'],['sort','Sort of'],['no','No']]},
- {id:'tank',type:'slider',min:1,max:10,step:1,def:5,text:'Where is the tank right now?',lo:'Empty',hi:'Full',fmt:v=>v}
-]}
-function eveningQs(a){
- const st=stats();const learning=st.nE<5;const di=dayIndex();
- const rot=(i,active)=>learning||active||((di+i)%2===0);
- const q=[
-  {id:'anger',type:'slider',min:0,max:10,step:1,def:2,text:'How high did it climb today?',lo:'Calm',hi:'Lost it',fmt:v=>v},
-  {id:'tapped',type:'choice',text:'Did you tap out before it landed on anyone?',show:x=>num(x.anger)&&x.anger>=6,opts:[['yes','Yes, left the room'],['no','No, stayed in it']]},
-  {id:'yesNo',type:'choice',text:'Did you say yes today when you meant no?',opts:[['caved','Yes, I caved'],['held','No, I held it'],['none','Nothing came up']]},
-  {id:'yesWhat',type:'text',text:'What was it?',ph:'A few words is enough',show:x=>x.yesNo==='caved'},
-  {id:'comfort',type:'choice',text:'Did '+esc(S.partner)+' reach for you today?',opts:[['in','Yes, I let it land'],['out','Yes, I pulled away'],['none','Did not come up']]},
-  {id:'audit',type:'choice',text:'Did you keep score on the house today?',sub:'Mess, who did what, whether it was done right.',show:()=>rot(0,st.c.control>=3),opts:[['yes','Yes'],['no','No']]},
-  {id:'runaway',type:'choice',text:'Did the leaving thought show up?',show:()=>rot(1,st.c.runaway>=1),opts:[['yes','Yes'],['no','No']]},
-  {id:'overthink',type:'choice',text:'Did you spin on a decision today?',show:()=>rot(2,st.c.overthink>=3),opts:[['yes','Yes'],['no','No']]},
-  {id:'outside',type:'choice',text:'Did you get outside today?',show:()=>rot(3,false),opts:[['yes','Yes'],['no','No']]},
-  {id:'bedWho',type:'choice',text:'Who did '+esc(S.kid)+"'s bedtime?",opts:[['me','Me'],['partner',esc(S.partner)],['both','Both of us'],['none','No bedtime yet']]},
-  {id:'bedHow',type:'choice',text:'How did bedtime go?',show:x=>x.bedWho==='me'||x.bedWho==='both',opts:[['fine','Fine'],['rough','Rough, but I held it'],['blew','Lost it']]},
-  {id:'good',type:'text',text:'One good thing today.',ph:'Anything. Small counts.'},
-  {id:'note',type:'text',text:'Anything else to get out of your head?',ph:'Optional'}
- ];
- return q.filter(x=>!x.show||x.show(a));
+async function ensureSample(){
+  if(sample)return sample;
+  if(sampleP){try{sample=await sampleP}catch(e){sample=null}}
+  return sample;
 }
 
-function startFlow(phase){const e=S.entries[todayKey()]||{};flow={phase,i:0,a:Object.assign({},e[phase]||{})};render()}
-function flowQs(){return flow.phase==='m'?morningQs():eveningQs(flow.a)}
-function captureText(){const t=document.querySelector('textarea[data-q]');if(t&&flow)flow.a[t.dataset.q]=t.value.trim()}
-function flowNext(){
- if(!flow)return;
- let qs=flowQs();const q=qs[Math.min(flow.i,qs.length-1)];
- if(q&&q.type==='slider'&&flow.a[q.id]==null)flow.a[q.id]=q.def;
- qs=flowQs();
- if(flow.i>=qs.length-1){finishFlow()}else{flow.i++;render()}
-}
-function finishFlow(){const k=todayKey();if(!S.entries[k])S.entries[k]={};S.entries[k][flow.phase]=flow.a;S.entries[k].ts=Date.now();save();flow=null;render()}
-
-function renderFlow(){
- const qs=flowQs();if(flow.i>=qs.length)flow.i=qs.length-1;const q=qs[flow.i];const v=flow.a[q.id];
- let body='';
- if(q.type==='slider'){const val=v==null?q.def:v;body='<div class="big" id="bigv">'+q.fmt(val)+'</div><input type="range" min="'+q.min+'" max="'+q.max+'" step="'+q.step+'" value="'+val+'" data-q="'+q.id+'"><div class="ends"><span>'+q.lo+'</span><span>'+q.hi+'</span></div>'}
- else if(q.type==='choice'){body='<div class="choice">'+q.opts.map(o=>'<button data-act="pick" data-q="'+q.id+'" data-v="'+o[0]+'" class="'+(v===o[0]?'on':'')+'">'+o[1]+'</button>').join('')+'</div>'}
- else{body='<textarea data-q="'+q.id+'" rows="3" placeholder="'+esc(q.ph||'')+'">'+esc(v||'')+'</textarea>'}
- const last=flow.i===qs.length-1;
- return '<div class="card q" key="'+q.id+'"><div class="dots">'+qs.map((x,i)=>'<i class="'+(i===flow.i?'on':'')+'"></i>').join('')+'</div><h2>'+q.text+'</h2>'+(q.sub?'<p class="muted">'+q.sub+'</p>':'')+body+'<div class="nav"><button class="btn ghost" data-act="back">'+(flow.i===0?'Cancel':'Back')+'</button>'+(q.type==='choice'?'<span class="muted small">Tap one</span>':'<button class="btn" data-act="next">'+(last?'Done':'Next')+'</button>')+'</div></div>';
+async function ask(){
+  const s=await ensureSample();
+  if(!s){note('sessNote','Claude is not available on this page right now.',true);return}
+  const m=$('#msgs');
+  ctl=new AbortController();setBusy(true);note('sessNote','');
+  const el=addMsg(m,'assistant','Thinking…');el.classList.add('thinking');scrollEnd();
+  const input=[{role:'user',content:systemTurn()}].concat(session.turns.slice(-30).map(t=>({role:t.role,content:t.content})));
+  try{
+    const r=await s(input,{cache:false,signal:ctl.signal,modelTier:'default',effort:'low',onText:u=>{el.classList.remove('thinking');el.textContent=u.text;scrollEnd()}});
+    el.classList.remove('thinking');el.textContent=r.text;
+    session.turns.push({role:'assistant',content:r.text,at:iso()});
+    if(r.truncated)note('sessNote','That got cut short. Ask for less at a time.');
+    queueSave(session);
+  }catch(e){
+    el.classList.remove('thinking');
+    if(e&&e.text){el.textContent=e.text;session.turns.push({role:'assistant',content:e.text,at:iso()});queueSave(session)}else el.remove();
+    if(e&&e.code!=='cancelled')note('sessNote',copyFor(e&&e.code),true);
+  }finally{ctl=null;setBusy(false);$('#sessBox').focus()}
 }
 
-function renderToday(){
- const k=todayKey(),e=S.entries[k]||{},h=new Date().getHours();
- let html='<div class="greet">'+greet()+', '+esc(S.name)+'.</div><div class="sub">'+fmtDate(new Date())+'</div>';
- if(flow){return html+renderFlow()}
- const mDone=!!e.m,eDone=!!e.e;
- if(!mDone&&h<14)html+='<div class="card"><h2>Morning check in</h2><p class="muted">Three questions. Thirty seconds.</p><button class="btn" data-act="start" data-p="m">Start</button></div>';
- if(mDone){const f=forecast(k);html+='<div class="fc '+f.level+'"><div class="small muted">Tonight</div><h2>'+f.title+'</h2><p>'+f.line+'</p>'+(f.why.length?'<p class="muted small">Because: '+f.why.join(', ')+'.</p>':'')+'</div>'}
- if(mDone&&!eDone){
-  if(h>=17)html+='<div class="card"><h2>Evening review</h2><p class="muted">How the day actually went.</p><button class="btn" data-act="start" data-p="e">Start</button></div>';
-  else html+='<div class="card"><h2>Evening review</h2><p class="muted">Opens at 5pm. Do it early if the day is already done.</p><button class="btn sec" data-act="start" data-p="e">Do it now</button></div>';
- }
- if(!mDone&&h>=14&&!eDone)html+='<div class="card"><h2>Evening review</h2><p class="muted">A few questions. How the day went.</p><button class="btn" data-act="start" data-p="e">Start</button><button class="btn ghost" data-act="start" data-p="m">Add this morning</button></div>';
- if(eDone)html+=renderDay(e);
- if(mDone||eDone)html+='<div class="row">'+(mDone?'<button class="btn sec" data-act="start" data-p="m">Edit morning</button>':'')+(eDone?'<button class="btn sec" data-act="start" data-p="e">Edit evening</button>':'')+'</div>';
- html+='<div class="card"><div class="small muted">Line for today</div><div class="line" style="border:0;padding-bottom:0">'+LINES[dayIndex()%LINES.length]+'</div></div>';
- return html;
-}
-function renderDay(e){
- const v=e.e,m=e.m||{};
- const val=x=>num(x)?x:'';
- let html='<div class="card"><h2>Today</h2>';
- html+='<div class="stat"><span>Tank this morning</span><b>'+val(m.tank)+'</b></div>';
- html+='<div class="stat"><span>Sleep</span><b>'+(num(m.sleep)?m.sleep+' hrs':'')+'</b></div>';
- html+='<div class="stat"><span>How high it climbed</span><b>'+val(v.anger)+'</b></div>';
- if(v.good)html+='<div class="stat"><span>Good thing</span><b style="font-size:17px;font-weight:500;text-align:right;white-space:normal">'+esc(v.good)+'</b></div>';
- html+='</div><div class="card"><h2>Read</h2>'+reflect(e).map(l=>'<p>'+l+'</p>').join('')+'</div>';
- return html;
+function queueSave(s){
+  if(!db)return;
+  const snap=JSON.parse(JSON.stringify(s));
+  saveChain=saveChain.then(()=>db.doc('sessions/'+snap.id).set(snap)).catch(e=>{note('sessNote','Could not save this session.',true)});
 }
 
-function renderPatterns(){
- const st=stats();
- let html='<div class="greet">Patterns</div><div class="sub">Last 14 days. '+st.days+' logged. It learns from what you log.</div>';
- if(st.days<3)return html+'<div class="card"><h2>Not enough yet</h2><p class="muted">Log three days and this starts filling in. Five days and it starts predicting your nights.</p></div>';
- const R=rows(14);
- html+='<div class="card"><h2>How high it climbed</h2><div class="bars">'+R.map(r=>{const v=r.e.e&&num(r.e.e.anger)?r.e.e.anger:null;const cls=v==null?'none':v>=7?'hot':v>=5?'warm':'';const hg=v==null?3:Math.max(5,v*10);return '<div class="'+cls+'" style="height:'+hg+'%"></div>'}).join('')+'</div><div class="lbl">'+R.map(r=>'<span>'+DAYS[r.d.getDay()][0]+'</span>').join('')+'</div></div>';
- const say=[];
- if(st.lowSleep.n>=2&&st.okSleep.n>=2){
-  html+='<div class="card"><h2>Sleep and anger</h2><p>On short sleep nights it climbed to <b>'+r1(st.lowSleep.avg)+'</b> on average. On decent sleep, <b>'+r1(st.okSleep.avg)+'</b>.</p></div>';
-  if(st.lowSleep.avg-st.okSleep.avg>=1.5)say.push('Sleep is your biggest lever. Short nights run about '+r1(st.lowSleep.avg-st.okSleep.avg)+' points hotter.');
- }else html+='<div class="card"><h2>Sleep and anger</h2><p class="muted">Needs a few more nights with both the morning and evening logged.</p></div>';
- if(st.lowTank.n>=2&&st.okTank.n>=2){
-  html+='<div class="card"><h2>Tank and anger</h2><p>When the tank was 4 or under it climbed to <b>'+r1(st.lowTank.avg)+'</b>. Above 4, <b>'+r1(st.okTank.avg)+'</b>.</p></div>';
-  if(st.lowTank.avg-st.okTank.avg>=1.5)say.push('Empty tank days run hotter. The morning tank number is your early warning.');
- }
- if(st.worst)html+='<div class="card"><h2>Rough day</h2><p>'+DAYS[st.worst.day]+'s run hottest. Average <b>'+r1(st.worst.avg)+'</b> over '+st.worst.n+' of them.</p></div>';
- html+='<div class="card"><h2>The numbers</h2>';
- html+='<div class="stat"><span>Said yes, meant no</span><b>'+st.c.asking+' days</b></div>';
- html+='<div class="stat"><span>Held a clean no</span><b>'+st.held+' days</b></div>';
- html+='<div class="stat"><span>Let it land</span><b>'+st.landed+' of '+st.offered+'</b></div>';
- html+='<div class="stat"><span>Tapped out when it climbed</span><b>'+st.tapped+' of '+st.climbed+'</b></div>';
- html+='<div class="stat"><span>Leaving thought</span><b>'+st.c.runaway+' days</b></div>';
- html+='<div class="stat"><span>Kept score on the house</span><b>'+st.c.control+' days</b></div>';
- html+='<div class="stat"><span>Got outside</span><b>'+st.outside+' of '+st.outsideAsked+'</b></div>';
- html+='<div class="stat"><span>Bedtimes</span><b>me '+st.bedMe+', '+esc(S.partner)+' '+st.bedPartner+'</b></div>';
- html+='</div>';
- if(st.c.asking>=4)say.push(st.c.asking+' yeses you did not mean this fortnight. That is what fills the resentment tank.');
- if(st.offered>=2&&st.landed/st.offered<0.5)say.push('She reached '+st.offered+' times, you let it land '+st.landed+'. The hardest rep, and the one that refills you.');
- if(st.climbed>=1&&st.tapped===st.climbed)say.push('Every time it climbed you tapped out. That is the whole skill.');
- if(st.climbed>=1&&st.tapped<st.climbed)say.push('It climbed '+st.climbed+' times, you tapped out '+st.tapped+'. The gap is where tonight\'s plan goes.');
- if(st.c.runaway>=1)say.push('The leaving thought showed up on '+st.c.runaway+' days. Check those against your low tank days. It comes when you are empty.');
- if(st.c.control>=5)say.push('Keeping score most days. Pick it up or walk past it. The watching is the cost.');
- if(st.bedMe>=5&&st.bedPartner===0)say.push('Every bedtime was you. That is the single point of failure. Two fixed nights for '+esc(S.partner)+'.');
- if(say.length)html+='<div class="card"><h2>What this says</h2>'+say.slice(0,4).map(l=>'<p>'+l+'</p>').join('')+'</div>';
- return html;
+async function startSession(text){
+  text=(text||'').trim();if(!text||busy)return;
+  const open=sessions.find(s=>!s.endedAt&&s.turns&&s.turns.length>1);
+  session={id:newId(),startedAt:iso(),opener:text,turns:[{role:'user',content:text,at:iso()}],summary:null,endedAt:null};
+  sessions.unshift(session);
+  $('#homeBox').value='';autosize($('#homeBox'));$('#homeSend').disabled=true;
+  go('session');renderTurns();
+  if(open){note('sessNote','Saving last time first…');await closeSession(open);note('sessNote','')}
+  await ask();
+}
+function continueSession(){
+  const open=sessions.find(s=>!s.endedAt&&s.turns&&s.turns.length>1);
+  if(!open)return;session=open;go('session');renderTurns();scrollEnd();$('#sessBox').focus();
+}
+async function sendTurn(text){
+  text=(text||'').trim();if(!text||busy||!session)return;
+  addMsg($('#msgs'),'user',text);
+  session.turns.push({role:'user',content:text,at:iso()});
+  $('#sessBox').value='';autosize($('#sessBox'));$('#sessSend').disabled=true;
+  scrollEnd();
+  await ask();
 }
 
-function renderTools(){
- let html='<div class="greet">Tools</div><div class="sub">For the moment, not for later.</div>';
- if(S.timerEnd){
-  const left=S.timerEnd-Date.now();
-  html+='<div class="card center"><h2>Tap out</h2><div class="timer" id="tm">'+(left>0?Math.floor(left/60000)+':'+pad(Math.floor((left%60000)/1000)):'0:00')+'</div><p id="tmsg" class="muted">'+(left>0?'Back at '+fmtTime(S.timerEnd)+'. Do nothing. Do not replay it.':'Time. Go back in.')+'</p><button class="btn sec" data-act="stoptimer">Done</button></div>';
- }else{
-  html+='<div class="card"><h2>Tap out</h2><p class="muted">Say this, then leave the room. Twenty minutes. You come back, that is the deal.</p><p style="font-size:20px;font-weight:600;margin-top:14px">I\'m at a seven. I need twenty minutes. Back at '+fmtTime(Date.now()+20*60000)+'.</p><button class="btn" data-act="timer">I\'m climbing</button></div>';
- }
- html+='<div class="card"><h2>Say it to yourself</h2>'+LINES.map(l=>'<div class="line">'+l+'</div>').join('')+'</div>';
- html+='<div class="card"><h2>The clean no</h2><p class="muted">Say it once. Then stop talking. She is allowed to be disappointed.</p>';
- html+='<div class="say">That is my work day. I can\'t.</div><div class="say">I\'m on leads, you\'ll need to sort that one.</div><div class="say">Even with notice, I don\'t want to give up that block. That\'s my income.</div><div class="say">I don\'t want to. That is the whole reason.</div></div>';
- html+='<div class="card"><h2>For '+esc(S.partner)+'</h2><div class="say">I know things feel off. I\'m not going anywhere. I\'m working on it.</div><div class="say">When I go stiff when you comfort me, it isn\'t you. Nobody did that for me growing up. Don\'t stop reaching.</div><div class="say">I\'m at my limit, can you take '+esc(S.kid)+' for ten minutes.</div></div>';
- html+='<div class="card"><h2>For '+esc(S.kid)+'</h2><div class="say">I got too angry. That wasn\'t your fault and it wasn\'t okay. I\'m sorry.</div><div class="say">I\'m here, you\'re safe, lie down.</div><div class="say">Dad\'s feeling sad. It\'s not your fault. I\'m okay.</div></div>';
- html+='<div class="card"><h2>Seven ideas</h2>';
- html+='<div class="say"><b>Shoganai.</b> Some things can\'t be changed. Stop replaying it.</div>';
- html+='<div class="say"><b>Choshin.</b> Check the body first. Eaten, slept.</div>';
- html+='<div class="say"><b>Ma.</b> The pause between the guilt and the yes.</div>';
- html+='<div class="say"><b>Enryo.</b> A no is self care.</div>';
- html+='<div class="say"><b>Shinrin yoku.</b> Twenty minutes outside is maintenance.</div>';
- html+='<div class="say"><b>Wabi sabi.</b> A bad moment is not proof you are failing.</div>';
- html+='<div class="say"><b>Kaizen.</b> One rep. Then the next one.</div></div>';
- html+='<div class="card"><h2>Support</h2><p class="muted">When it is past a seven and you can\'t bring it down.</p>';
- html+='<div class="tel"><span>MensLine, 24 hours</span><a href="tel:1300789978">1300 78 99 78</a></div>';
- html+='<div class="tel"><span>Men\'s Referral Service, 24 hours</span><a href="tel:1300766491">1300 766 491</a></div>';
- html+='<div class="tel"><span>Parentline Queensland</span><a href="tel:1300301300">1300 30 1300</a></div>';
- html+='<div class="tel"><span>Men\'s program, Gold Coast</span><a href="tel:0755914222">07 5591 4222</a></div></div>';
- return html;
+async function closeSession(s){
+  let summary=null,notes=null;
+  const sm=await ensureSample();
+  if(sm&&s.turns.some(t=>t.role==='assistant')){
+    try{
+      const r=await sm.json(closePrompt(s),{modelTier:'default',effort:'low',cache:false});
+      if(r&&typeof r.summary==='string'&&r.summary.trim())summary=r.summary.trim();
+      if(r&&typeof r.profile==='string'&&r.profile.trim().length>300)notes=r.profile.trim();
+    }catch(e){if(e&&e.code&&e.code!=='cancelled')note('homeNote',copyFor(e.code),true)}
+  }
+  s.summary=summary||('Started with: '+s.opener.slice(0,100));
+  s.endedAt=iso();
+  if(db){
+    try{
+      await saveChain;
+      await db.doc('sessions/'+s.id).set(JSON.parse(JSON.stringify(s)));
+      if(notes){profile={notes,prev:(profile&&profile.notes)||'',updatedAt:iso()};await db.doc('profile/me').set(profile)}
+    }catch(e){note('homeNote','Could not save that session.',true)}
+  }
+}
+async function endSession(){
+  if(ctl)ctl.abort();
+  const s=session;session=null;
+  go('home');renderHome();
+  if(!s)return;
+  if(!s.turns.some(t=>t.role==='assistant')){sessions=sessions.filter(x=>x.id!==s.id);renderHome();return}
+  note('homeNote','Saving and updating memory…');
+  await closeSession(s);
+  note('homeNote','Saved.');renderHome();
+  setTimeout(()=>{if($('#homeNote').textContent==='Saved.')note('homeNote','')},4000);
 }
 
-function renderMe(){
- const r=rankedIssues();
- let html='<div class="greet">Me</div><div class="sub">Reorders itself as you log. Counted over the last 14 days.</div>';
- html+='<div class="card">'+r.list.map((i,ix)=>'<div class="issue"><div class="n">'+(ix+1)+'</div><div><div class="t">'+i.t+'</div><div class="d">'+i.d+'</div>'+(i.n===null?'<span class="pill">Root. Not scored.</span>':'<span class="pill">'+i.n+' of '+r.st.nE+' days</span>')+'</div></div>').join('')+'</div>';
- html+='<div class="card"><h2>Bring it to Claude</h2><p class="muted">Writes up your last seven days so you can paste it into the chat and get the thinking part.</p><button class="btn" data-act="export">Write it up and copy</button>'+(exportText?'<pre>'+esc(exportText)+'</pre><button class="btn sec" data-act="copy">Copy again</button>':'')+'</div>';
- html+='<div class="card"><h2>What I know about myself</h2><p class="muted">In your own words. Gets added to the write up.</p><textarea rows="5" data-set="notes" placeholder="The things you would want a new therapist to know first">'+esc(S.notes||'')+'</textarea></div>';
- html+='<div class="card"><h2>Names</h2><label class="f">You<input type="text" data-set="name" value="'+esc(S.name)+'"></label><label class="f">Partner<input type="text" data-set="partner" value="'+esc(S.partner)+'"></label><label class="f">Kid<input type="text" data-set="kid" value="'+esc(S.kid)+'"></label></div>';
- html+='<div class="card"><h2>Your data</h2><p class="muted">Lives only on this device. Nothing is sent anywhere. Back it up now and then.</p><div class="row"><button class="btn sec" data-act="backup">Back up</button><button class="btn sec" data-act="restore">Restore</button></div><button class="btn danger" data-act="reset">Delete everything</button></div>';
- return html;
+function showProfile(){
+  go('profile');
+  $('#profText').value=(profile&&profile.notes)||'';
+  $('#profMeta').textContent=profile&&profile.updatedAt?'Updated '+fmtDate(profile.updatedAt)+'. It rewrites this after every session. You can change anything.':'Nothing saved yet. It fills this in after your first session, or write it yourself.';
+  $('#restoreBtn').hidden=!(profile&&profile.prev);$('#restoreBtn').textContent='Restore the previous version';restoreArmed=false;
+  note('profNote',db?'':'Memory is off in this view, so this will not save.',!db);
+}
+async function saveProfile(){
+  const v=$('#profText').value.trim();
+  if(!db){note('profNote','Memory is off in this view.',true);return}
+  $('#saveProfile').disabled=true;
+  try{profile={notes:v,prev:(profile&&profile.notes)||'',updatedAt:iso()};await db.doc('profile/me').set(profile);note('profNote','Saved.')}
+  catch(e){note('profNote','Could not save.',true)}
+  $('#saveProfile').disabled=false;
+}
+async function restoreProfile(){
+  if(!profile||!profile.prev)return;
+  if(!restoreArmed){restoreArmed=true;$('#restoreBtn').textContent='Tap again to restore the previous version';return}
+  $('#profText').value=profile.prev;restoreArmed=false;$('#restoreBtn').textContent='Restore the previous version';
+  await saveProfile();
 }
 
-function buildExport(){
- const st=stats(7);const L=[];
- L.push(S.name+', last 7 days.');
- L.push('Logged '+st.days+' of 7 days.');
- if(st.sleep!=null)L.push('Sleep average '+r1(st.sleep)+' hours.');
- if(st.tank!=null)L.push('Tank average '+r1(st.tank)+' out of 10.');
- if(st.anger!=null)L.push('Anger peak average '+r1(st.anger)+' out of 10. Climbed to 6 or more on '+st.climbed+' days, tapped out on '+st.tapped+' of those.');
- L.push('Said yes when I meant no: '+st.c.asking+' days. Held a clean no: '+st.held+' days.');
- if(st.offered)L.push(S.partner+' reached for me '+st.offered+' times, I let it land '+st.landed+'.');
- L.push('Leaving thought: '+st.c.runaway+' days. Kept score on the house: '+st.c.control+' days. Spun on a decision: '+st.c.overthink+' days.');
- L.push('Bedtime: me '+st.bedMe+', '+S.partner+' '+st.bedPartner+', both '+st.bedBoth+'. Rough bedtimes: '+st.bedRough+'.');
- if(st.worst)L.push('Roughest day: '+DAYS[st.worst.day]+'.');
- if(st.goods.length)L.push('Good things: '+st.goods.join('; ')+'.');
- if(st.notes.length)L.push('Notes: '+st.notes.map(n=>{const d=fromKey(n.k);return d.getDate()+' '+MON[d.getMonth()].slice(0,3)+': '+n.t}).join(' | '));
- if(S.notes)L.push('About me: '+S.notes);
- L.push('What I want help with: ');
- return L.join('\n');
+function showHistory(){
+  go('history');
+  const l=$('#sessList');l.innerHTML='';
+  const done=sessions.filter(s=>s.turns&&s.turns.length>1);
+  if(!done.length){l.innerHTML='<p class="empty">No sessions yet.</p>';return}
+  done.forEach(s=>{
+    const r=document.createElement('div');r.className='row';r.dataset.act='read';r.dataset.id=s.id;
+    r.innerHTML='<div><div class="t"></div><div class="d"></div></div><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+    r.querySelector('.t').textContent=fmtDate(s.startedAt)+', '+fmtTime(new Date(s.startedAt));
+    r.querySelector('.d').textContent=s.summary||s.opener;
+    l.appendChild(r);
+  });
 }
-function copy(t){
- if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).catch(()=>{})}
- else{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}document.body.removeChild(ta)}
-}
-function backup(){
- const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
- const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='jordy-backup-'+todayKey()+'.json';document.body.appendChild(a);a.click();document.body.removeChild(a);
-}
-
-const TABS=[
- ['today','Today','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg>'],
- ['patterns','Patterns','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 20v-7M12 20V5M19 20v-10"/></svg>'],
- ['tools','Tools','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7.5" width="18" height="12.5" rx="3"/><path d="M8 7.5V5.5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/></svg>'],
- ['me','Me','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c0-4 3.4-7 7.5-7s7.5 3 7.5 7"/></svg>']
-];
-function render(){
- const v=document.getElementById('view');
- v.innerHTML=tab==='today'?renderToday():tab==='patterns'?renderPatterns():tab==='tools'?renderTools():renderMe();
- document.getElementById('tabs').innerHTML=TABS.map(t=>'<button data-act="tab" data-t="'+t[0]+'" class="'+(tab===t[0]?'on':'')+'">'+t[2]+t[1]+'</button>').join('');
+function showRead(id){
+  const s=sessions.find(x=>x.id===id);if(!s)return;
+  go('read');
+  $('#readTitle').textContent=fmtDate(s.startedAt);
+  const m=$('#readMsgs');m.innerHTML='';
+  s.turns.forEach(t=>addMsg(m,t.role,t.content));
 }
 
 document.addEventListener('click',ev=>{
- const t=ev.target.closest('[data-act]');if(!t)return;
- const act=t.dataset.act;
- if(act==='tab'){tab=t.dataset.t;window.scrollTo(0,0);render()}
- else if(act==='start')startFlow(t.dataset.p);
- else if(act==='pick'){if(!flow)return;flow.a[t.dataset.q]=t.dataset.v;t.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on'));t.classList.add('on');setTimeout(flowNext,150)}
- else if(act==='next'){captureText();flowNext()}
- else if(act==='back'){captureText();if(flow.i>0){flow.i--;render()}else{flow=null;render()}}
- else if(act==='timer'){S.timerEnd=Date.now()+20*60000;save();render()}
- else if(act==='stoptimer'){S.timerEnd=null;save();render()}
- else if(act==='export'){exportText=buildExport();copy(exportText);render()}
- else if(act==='copy')copy(exportText);
- else if(act==='backup')backup();
- else if(act==='restore')document.getElementById('file').click();
- else if(act==='reset'){if(confirm('Delete everything in this app? There is no undo.')){S={name:S.name,partner:S.partner,kid:S.kid,entries:{},notes:'',timerEnd:null};save();exportText='';render()}}
+  const t=ev.target.closest('[data-act],[data-say]');if(!t)return;
+  if(t.dataset.say){$('#homeBox').value=t.dataset.say;autosize($('#homeBox'));$('#homeSend').disabled=false;$('#homeBox').focus();return}
+  const a=t.dataset.act;
+  if(a==='home'){go('home');renderHome()}
+  else if(a==='profile')showProfile();
+  else if(a==='history')showHistory();
+  else if(a==='read')showRead(t.dataset.id);
+  else if(a==='continue')continueSession();
+  else if(a==='end')endSession();
+  else if(a==='saveProfile')saveProfile();
+  else if(a==='restoreProfile')restoreProfile();
 });
-document.addEventListener('input',ev=>{
- const el=ev.target;
- if(el.matches('input[type=range][data-q]')&&flow){flow.a[el.dataset.q]=parseFloat(el.value);const b=document.getElementById('bigv');const q=flowQs().find(x=>x.id===el.dataset.q);if(b&&q)b.textContent=q.fmt(flow.a[el.dataset.q])}
- else if(el.matches('textarea[data-q]')&&flow){flow.a[el.dataset.q]=el.value}
- else if(el.matches('[data-set]')){S[el.dataset.set]=el.value;save()}
+$('#homeForm').addEventListener('submit',ev=>{ev.preventDefault();startSession($('#homeBox').value)});
+$('#sessForm').addEventListener('submit',ev=>{ev.preventDefault();sendTurn($('#sessBox').value)});
+$('#sessStop').addEventListener('click',()=>{if(ctl)ctl.abort()});
+[['homeBox','homeSend'],['sessBox','sessSend']].forEach(([b,s])=>{
+  const box=$('#'+b),btn=$('#'+s);
+  box.addEventListener('input',()=>{autosize(box);btn.disabled=!box.value.trim()});
+  box.addEventListener('keydown',ev=>{if(ev.key==='Enter'&&!ev.shiftKey){ev.preventDefault();if(!btn.disabled)box.form.requestSubmit()}});
 });
-document.addEventListener('change',ev=>{
- if(ev.target.id!=='file')return;
- const f=ev.target.files[0];if(!f)return;
- const rd=new FileReader();
- rd.onload=()=>{try{const d=JSON.parse(rd.result);if(d&&d.entries){S=d;if(!S.partner)S.partner='Bonnie';if(!S.kid)S.kid='Luna';save();render()}else alert('That file is not a backup from this app.')}catch(e){alert('Could not read that file.')}};
- rd.readAsText(f);ev.target.value='';
-});
-setInterval(()=>{
- if(tab!=='tools'||!S.timerEnd)return;
- const el=document.getElementById('tm');if(!el)return;
- const left=S.timerEnd-Date.now();
- if(left<=0){el.textContent='0:00';const m=document.getElementById('tmsg');if(m)m.textContent='Time. Go back in.';if(navigator.vibrate)navigator.vibrate(200)}
- else el.textContent=Math.floor(left/60000)+':'+pad(Math.floor((left%60000)/1000));
-},1000);
-render();
+
+async function init(){
+  renderHome();
+  if(!hasClaude){note('homeNote','Open this from your Claude account for it to talk back.',true);$('#homeSend').disabled=true;$('#homeBox').disabled=true;return}
+  sampleP=window.claude.use('sample');
+  const dbP=window.claude.use('db');
+  try{db=await dbP}catch(e){db=null}
+  if(db){
+    try{const p=await db.doc('profile/me').get();if(p.exists)profile=p.data()}catch(e){}
+    try{const q=await db.collection('sessions').orderBy('startedAt','desc').limit(40).get();sessions=q.docs.map(d=>d.data()).filter(s=>s&&s.id&&Array.isArray(s.turns))}catch(e){}
+  }
+  if(view==='home')renderHome();
+  sample=await sampleP;
+  if(!sample)note('homeNote','Claude is not available on this page right now.',true);
+}
+function start(data){
+  if(data&&data.session&&Array.isArray(data.session.turns)){session=data.session;sessions.unshift(session);go('session');renderTurns()}
+  init();
+}
+if(window.claude&&window.claude.hot&&typeof window.claude.hot.snapshot==='function')window.claude.hot.snapshot(()=>({session}));
+if(window.claude&&window.claude.hot&&typeof window.claude.hot.ready==='function')window.claude.hot.ready(start);else start((window.claude&&window.claude.hot&&window.claude.hot.data)||{});
 })();
 </script>
+
 </body>
 </html>
